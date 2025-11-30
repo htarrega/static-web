@@ -4,45 +4,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Hugo Tárrega's CV" />
+    <meta name="description" content="Hugo Tárrega's cv" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:site" content="@htarrega" />
     <link rel="canonical" href="http://htarrega.me/cv.html" />
     <link rel="icon" href="favicon/favicon.png" type="image/png">
     <link rel="apple-touch-icon" href="favicon/apple-touch-icon.png">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            line-height: 1.4;
+            line-height: 1.6;
             font-size: 17px;
-            padding: 0 10px;
-            margin: 50px auto;
-            max-width: 650px;
             background-color: black;
             color: white;
-        }
-
-        #maincontent {
-            max-width: 42em;
-            margin: 15px auto;
-            margin-top: 70px;
-        }
-
-        a {
-            color: white;
-            text-decoration: underline;
-        }
-
-        a:hover {
-            color: rgb(0, 133, 41);
-            text-decoration: none;
-        }
-
-        a:visited {
-            color: white;
-        }
-
-        a:active {
-            color: rgb(0, 133, 41);
         }
 
         nav {
@@ -60,9 +39,7 @@
             display: flex;
             justify-content: center;
             gap: 30px;
-            margin: 0;
-            padding: 0;
-            max-width: 650px;
+            max-width: 750px;
             margin: 0 auto;
             padding: 10px;
         }
@@ -70,28 +47,379 @@
         nav a {
             text-decoration: none;
             font-size: 16px;
+            color: white;
+            transition: color 0.2s;
         }
 
         nav a:hover {
             color: rgb(0, 133, 41);
         }
+
+        #maincontent {
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 80px 20px 40px;
+        }
+
+        a {
+            color: white;
+            text-decoration: underline;
+            transition: color 0.2s;
+        }
+
+        a:hover {
+            color: rgb(0, 133, 41);
+            text-decoration: none;
+        }
+
+        /* Header Section */
+        .cv-header {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgb(40, 40, 40);
+        }
+
+        .cv-header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .contact-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            font-size: 14px;
+            color: rgb(160, 160, 160);
+        }
+
+        .contact-info a {
+            color: rgb(160, 160, 160);
+            text-decoration: none;
+        }
+
+        .contact-info a:hover {
+            color: rgb(0, 133, 41);
+        }
+
+        /* Section Headers */
+        h2 {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 20px 0 15px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: white;
+            border-bottom: 2px solid rgb(40, 40, 40);
+            padding-bottom: 8px;
+        }
+
+        h2:first-of-type {
+            margin-top: 0;
+        }
+
+        /* Entry Container */
+        .entry {
+            margin-bottom: 18px;
+            padding-bottom: 0;
+        }
+
+        .entry:last-of-type {
+            margin-bottom: 0;
+        }
+
+        /* Entry Header with Two-Column Layout */
+        .entry-header {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 15px;
+            margin-bottom: 5px;
+            align-items: baseline;
+        }
+
+        .entry-company {
+            font-size: 17px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .entry-date {
+            font-size: 13px;
+            color: rgb(120, 120, 120);
+            white-space: nowrap;
+            text-align: right;
+        }
+
+        .entry-location {
+            font-size: 13px;
+            color: rgb(120, 120, 120);
+            margin-bottom: 3px;
+            display: block;
+        }
+
+        .entry-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: rgb(180, 180, 180);
+            margin-bottom: 4px;
+        }
+
+        .entry-description {
+            font-size: 15px;
+            color: rgb(200, 200, 200);
+            line-height: 1.5;
+            margin-bottom: 0;
+        }
+
+        /* Skills Section */
+        .skills-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 12px;
+        }
+
+        .skill-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .skill-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: rgb(120, 120, 120);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .skill-items {
+            font-size: 14px;
+            color: rgb(200, 200, 200);
+            line-height: 1.6;
+        }
+
+        /* Awards/Publications List */
+        .award-item {
+            margin-bottom: 10px;
+            padding-left: 0;
+            font-size: 14px;
+            color: rgb(200, 200, 200);
+            line-height: 1.6;
+        }
+
+        .award-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .award-highlight {
+            color: rgb(180, 180, 180);
+            font-weight: 600;
+        }
+
+        /* Download Section */
+        .download-section {
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid rgb(40, 40, 40);
+            text-align: center;
+        }
+
+        .download-btn {
+            display: inline-block;
+            padding: 12px 28px;
+            border: 1px solid white;
+            color: white;
+            background-color: black;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .download-btn:hover {
+            background-color: rgb(0, 133, 41);
+            color: black;
+            border-color: rgb(0, 133, 41);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            #maincontent {
+                padding: 70px 15px 30px;
+            }
+
+            .cv-header h1 {
+                font-size: 28px;
+            }
+
+            .entry-header {
+                grid-template-columns: 1fr;
+            }
+
+            .entry-date {
+                text-align: left;
+            }
+
+            .skills-container {
+                grid-template-columns: 1fr;
+            }
+
+            h2 {
+                font-size: 16px;
+            }
+        }
     </style>
-    <title>Hugo Tárrega - CV</title>
+    <title>Hugo Tárrega - cv</title>
 </head>
 
 <body>
     <nav>
         <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="cv.html">CV</a></li>
-            <li><a href="books.html">Books</a></li>
-            <li><a href="posts.html">Posts</a></li>
+            <li><a href="index.html">[htarrega.me]</a></li>
+            <li><a href="cv.html">[cv]</a></li>
+            <li><a href="books.html">[books]</a></li>
+            <li><a href="posts.html">[posts]</a></li>
         </ul>
     </nav>
+
     <div id="maincontent">
-        <h2>CV</h2>
-        <p>TODO: Add CV content</p>
-        <p><a href="resources/hugo_tarrega.pdf" download>Download my resume</a></p>
+        <!-- Header -->
+        <div class="cv-header">
+            <h1>Hugo Tárrega</h1>
+            <div class="contact-info">
+                <a href="mailto:hugots363@gmail.com">[Email]</a>
+                <a href="https://github.com/htarrega" target="_blank">[GitHub]</a>
+                <a href="https://linkedin.com/in/htarrega" target="_blank">[LinkedIn]</a>
+            </div>
+        </div>
+
+        <!-- Experience Section -->
+        <h2>Experience</h2>
+
+        <div class="entry">
+            <div class="entry-header">
+                <div>
+                    <div class="entry-company">Facephi</div>
+                    <span class="entry-location">Alicante, Spain</span>
+                    <div class="entry-title">Software Engineer</div>
+                </div>
+                <span class="entry-date">April 2024 – Present</span>
+            </div>
+            <p class="entry-description">Improved inference throughput by 40% and reduced latency by 25% across 15+
+                biometric pipelines through algorithmic optimizations and parallelization techniques.</p>
+        </div>
+
+        <div class="entry">
+            <div class="entry-header">
+                <div>
+                    <div class="entry-company">Topcon Mirage</div>
+                    <span class="entry-location">València, Spain</span>
+                    <div class="entry-title">Software Engineer</div>
+                </div>
+                <span class="entry-date">Nov 2022 – Apr 2024</span>
+            </div>
+            <p class="entry-description">Led migration of a point cloud processing platform (Pb/day scale) in C++ to
+                OpenVDB. Reduced build times by 50% for a 50-engineer team via compiler optimizations and automated
+                library installation using Python and Conan.</p>
+        </div>
+
+        <div class="entry">
+            <div class="entry-header">
+                <div>
+                    <div class="entry-company">Inetum</div>
+                    <span class="entry-location">València, Spain</span>
+                    <div class="entry-title">Embedded Software Engineer</div>
+                </div>
+                <span class="entry-date">Jun 2022 – Nov 2022</span>
+            </div>
+            <p class="entry-description">Rewrote public transport NFC embedded reader (C++) to handle real user
+                behavior, powering Valencia's bus network (77M trips/year).</p>
+        </div>
+
+        <div class="entry">
+            <div class="entry-header">
+                <div>
+                    <div class="entry-company">Parallel Architectures Group, UPV</div>
+                    <span class="entry-location">Valencia, Spain</span>
+                    <div class="entry-title">Research Assistant</div>
+                </div>
+                <span class="entry-date">Jun 2019 – May 2022</span>
+            </div>
+            <p class="entry-description">Improved CPU IPC by 15% by designing a novel L1 Cache (FTC). Achieved 21%
+                energy savings and a 6.4x density increase vs. SRAM, freeing space for accelerators.</p>
+        </div>
+
+        <!-- Education Section -->
+        <h2>Education</h2>
+
+        <div class="entry">
+            <div class="entry-header">
+                <div>
+                    <div class="entry-company">Universitat Politècnica de València</div>
+                    <span class="entry-location">València, Spain</span>
+                    <div class="entry-title">Master's in Computer and Network Architecture</div>
+                </div>
+                <span class="entry-date">Sep 2020 – Jun 2021</span>
+            </div>
+            <p class="entry-description">With honors on thesis: "Fusion of the L1 and L2 Levels of the Cache Memory
+                Hierarchy Using DWM"</p>
+        </div>
+
+        <div class="entry">
+            <div class="entry-header">
+                <div>
+                    <div class="entry-company">Universitat Politècnica de València</div>
+                    <span class="entry-location">València, Spain</span>
+                    <div class="entry-title">Bachelor's in Informatics Engineering</div>
+                </div>
+                <span class="entry-date">Sep 2016 – Jun 2020</span>
+            </div>
+            <p class="entry-description">With honors on thesis: "L1 Cache Design using Domain Wall Memory technology"
+            </p>
+        </div>
+
+        <!-- Skills Section -->
+        <h2>Technical Skills</h2>
+        <div class="skills-container">
+            <div class="skill-group">
+                <span class="skill-label">Programming Languages</span>
+                <span class="skill-items">C++, C, Python, Assembly (x86, MIPS), Shell scripting</span>
+            </div>
+            <div class="skill-group">
+                <span class="skill-label">Tools & Technologies</span>
+                <span class="skill-items">Git, Linux, CPU architectures, CMake, LaTeX, Inkscape</span>
+            </div>
+        </div>
+
+        <!-- Publications & Awards Section -->
+        <h2>Publications & Awards</h2>
+
+        <div class="award-item">
+            <span class="award-highlight">AI Writing Course Instructor</span> (Oct 2025) — Taught 4-week course on AI
+            for creative writing.
+        </div>
+
+        <div class="award-item">
+            <span class="award-highlight">Fast-track cache: A huge racetrack memory L1 data cache</span> — H. Tárrega et
+            al. 2022. ICS '22, ACM, Article 23.
+        </div>
+
+        <div class="award-item">
+            <span class="award-highlight">L1 Cache Design using Domain Wall Memory</span> — H. Tárrega et al. 2021.
+        </div>
+
+        <div class="award-item">
+            <span class="award-highlight">Map Hacks València 2019 Hackathon Winner</span> — Led team developing
+            pollution reduction app for Valencia buses.
+        </div>
+
+        <!-- Download Section -->
+        <div class="download-section">
+            <a href="resources/hugo_tarrega.pdf" download class="download-btn">Download PDF Resume</a>
+        </div>
     </div>
 </body>
 

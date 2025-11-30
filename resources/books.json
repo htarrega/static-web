@@ -1,20 +1,72 @@
 [
   {
-    "id": 1,
     "title": "The Road",
     "author": "Cormac McCarthy",
-    "cover": "images/books/the-road.jpg"
+    "cover": "images/books/the_road.jpg"
   },
   {
-    "id": 2,
     "title": "The Name of the Wind",
     "author": "Patrick Rothfuss",
-    "cover": "images/books/the-name-of-the-wind.jpg"
+    "cover": "images/books/the_name_of_the_wind.jpg"
   },
   {
-    "id": 3,
-    "title": "The New Testament",
-    "author": "Various",
-    "cover": "images/books/the-new-testament.jpg"
+    "title": "My year of magical thinking",
+    "author": "Joan Didion",
+    "cover": "images/books/my_year_of_magical_thinking.jpg"
+  },
+  {
+    "title": "Evangelio liberado",
+    "author": "Translated by Roser Homar",
+    "cover": "images/books/evangelio_liberado.jpg"
+  },
+  {
+    "title": "The Kingdom",
+    "author": "Emmanuel Carrere",
+    "cover": "images/books/the_kingdom.jpg"
+  },
+  {
+    "title": "Poesía completa",
+    "author": "Alejandra Pizarnik",
+    "cover": "images/books/poesia_completa.jpg"
+  },
+  {
+    "title": "The Dispossessed",
+    "author": "Ursula K. Le Guin",
+    "cover": "images/books/the_dis.jpg"
+  },
+  {
+    "title": "14 of July",
+    "author": "Éric Vuillard",
+    "cover": "images/books/14_july.jpg"
+  },
+  {
+    "title": "The Submission",
+    "author": "Michel Houellebecq",
+    "cover": "images/books/submission.jpg"
+  },
+  {
+    "title": "The Bad Girls",
+    "author": "Camila Sosa Villalba",
+    "cover": "images/books/the_bad_girls.jpg"
+  },
+  {
+    "title": "Frankenstein",
+    "author": "Mary Shelley",
+    "cover": "images/books/frankenstein.jpg"
+  },
+  {
+    "title": "French Revolution",
+    "author": "Albert Soboul",
+    "cover": "images/books/french_rev.jpg"
+  },
+  {
+    "title": "A report for an academy",
+    "author": "Franz Kafka",
+    "cover": "images/books/report.jpg"
+  },
+  {
+    "title": "The Unworthy",
+    "author": "Agustina Bazterrica",
+    "cover": "images/books/the_unworthy.jpg"
   }
 ]

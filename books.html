@@ -91,10 +91,11 @@
             flex-wrap: wrap;
         }
 
-        .sort-btn, .view-btn {
-            background-color: transparent;
+        .sort-btn,
+        .view-btn {
+            background-color: black;
             color: white;
-            border: 1px solid rgb(0, 133, 41);
+            border: 1px solid white;
             padding: 8px 15px;
             cursor: pointer;
             font-size: 14px;
@@ -102,14 +103,18 @@
             transition: all 0.2s;
         }
 
-        .sort-btn:hover, .view-btn:hover {
+        .sort-btn:hover,
+        .view-btn:hover {
             background-color: rgb(0, 133, 41);
             color: black;
+            border-color: rgb(0, 133, 41);
         }
 
-        .sort-btn.active, .view-btn.active {
-            background-color: rgb(0, 133, 41);
-            color: black;
+        .sort-btn.active,
+        .view-btn.active {
+            background-color: black;
+            color: white;
+            border-color: white;
         }
 
         .books-grid {
@@ -148,6 +153,7 @@
         .book-item {
             text-align: center;
             cursor: pointer;
+            position: relative;
         }
 
         .book-item img {
@@ -155,25 +161,39 @@
             height: auto;
             aspect-ratio: 2/3;
             object-fit: cover;
-            margin-bottom: 10px;
-            transition: transform 0.2s;
+            transition: transform 0.3s ease;
         }
 
-        .book-item:hover .book-cover {
-            transform: scale(1.05);
+        .book-info {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 15px 10px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7), transparent);
+            text-align: center;
+        }
+
+        .book-item:hover img {
+            transform: translateY(-10px);
+        }
+
+        .book-item:hover .book-info {
+            opacity: 1;
         }
 
         .book-title {
             font-weight: bold;
-            font-size: 15px;
-            margin-bottom: 5px;
+            font-size: 18px;
+            margin-bottom: 8px;
             word-break: break-word;
         }
 
         .book-author {
-            font-size: 14px;
+            font-size: 16px;
             color: rgb(150, 150, 150);
-            margin-bottom: 5px;
         }
 
 
@@ -208,16 +228,21 @@
 <body>
     <nav>
         <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="cv.html">CV</a></li>
-            <li><a href="books.html">Books</a></li>
-            <li><a href="posts.html">Posts</a></li>
+            <li><a href="index.html">[htarrega.me]</a></li>
+            <li><a href="cv.html">[cv]</a></li>
+            <li><a href="books.html">[books]</a></li>
+            <li><a href="posts.html">[posts]</a></li>
         </ul>
     </nav>
     <div id="maincontent">
         <h2>Books</h2>
 
         <div class="controls">
+            <div class="sort-buttons">
+                <button class="sort-btn active" data-sort="random">Random</button>
+                <button class="sort-btn" data-sort="author">Author</button>
+                <button class="sort-btn" data-sort="title">Title</button>
+            </div>
             <div class="sort-buttons">
                 <button class="view-btn active" data-view="grid">Grid</button>
                 <button class="view-btn" data-view="list">List</button>
@@ -233,6 +258,7 @@
     <script>
         let books = [];
         let currentView = 'grid';
+        let currentSort = 'random';
 
         async function loadBooks() {
             try {
@@ -244,6 +270,31 @@
             }
         }
 
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function sortBooks(booksToSort) {
+            const sorted = [...booksToSort];
+            switch (currentSort) {
+                case 'random':
+                    return shuffleArray(sorted);
+                case 'author':
+                    sorted.sort((a, b) => a.author.localeCompare(b.author));
+                    return sorted;
+                case 'title':
+                    sorted.sort((a, b) => a.title.localeCompare(b.title));
+                    return sorted;
+                default:
+                    return shuffleArray(sorted);
+            }
+        }
+
         function renderBooks() {
             const gridView = document.getElementById('grid-view');
             const listView = document.getElementById('list-view');
@@ -251,14 +302,17 @@
             gridView.innerHTML = '';
             listView.innerHTML = '';
 
-            books.forEach(book => {
+            const sortedBooks = sortBooks(books);
+            sortedBooks.forEach(book => {
                 // Grid view
                 const gridItem = document.createElement('div');
                 gridItem.className = 'book-item';
                 gridItem.innerHTML = `
                     <img src="${book.cover}" alt="${book.title}" class="book-cover" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22150%22 height=%22225%22%3E%3Crect fill=%22%23333%22 width=%22150%22 height=%22225%22/%3E%3Ctext x=%2275%22 y=%22112%22 text-anchor=%22middle%22 fill=%22%23999%22 font-size=%2214%22%3E${book.title}%3C/text%3E%3C/svg%3E'">
-                    <div class="book-title">${book.title}</div>
-                    <div class="book-author">${book.author}</div>
+                    <div class="book-info">
+                        <div class="book-title">${book.title}</div>
+                        <div class="book-author">${book.author}</div>
+                    </div>
                 `;
                 gridView.appendChild(gridItem);
 
@@ -273,7 +327,17 @@
             });
         }
 
-        // Event listeners
+        // Event listeners for sorting
+        document.querySelectorAll('.sort-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                currentSort = e.target.dataset.sort;
+                renderBooks();
+            });
+        });
+
+        // Event listeners for view toggle
         document.querySelectorAll('.view-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
