@@ -88,5 +88,25 @@
     "title": "The Pragmatic Programmer",
     "author": "David Thomas and Andrew Hunt",
     "cover": "images/books/pragmatic_programmer.jpg"
+  },
+  {
+    "title": "Freedom's Mirror",
+    "author": "Ada Ferrer",
+    "cover": "images/books/freedom_mirror.jpg"
+  },
+  {
+    "title": "If this is a man",
+    "author": "Primo Levi",
+    "cover": "images/books/levi.jpg"
+  },
+  {
+    "title": "Working Days: The Journals of the Grapes of Wrath",
+    "author": "John Steinbeck",
+    "cover": "images/books/working_days.jpg"
+  },
+  {
+    "title": "The Epic of Gilgamesh",
+    "author": "",
+    "cover": "images/books/gilga.jpg"
   }
 ]
