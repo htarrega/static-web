@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "title": "The Road",
+    "author": "Cormac McCarthy",
+    "cover": "images/books/the-road.jpg"
+  },
+  {
+    "id": 2,
+    "title": "The Name of the Wind",
+    "author": "Patrick Rothfuss",
+    "cover": "images/books/the-name-of-the-wind.jpg"
+  },
+  {
+    "id": 3,
+    "title": "The New Testament",
+    "author": "Various",
+    "cover": "images/books/the-new-testament.jpg"
+  }
+]
