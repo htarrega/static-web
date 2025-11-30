@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Reflections on teaching AI and writing" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@htarrega" />
+    <link rel="canonical" href="http://htarrega.me/posts/amplify-writing-with-ai.html" />
+    <link rel="icon" href="../favicon/favicon.png" type="image/png">
+    <link rel="apple-touch-icon" href="../favicon/apple-touch-icon.png">
+    <style>
+        body {
+            line-height: 1.6;
+            font-size: 17px;
+            padding: 0 10px;
+            margin: 50px auto;
+            max-width: 650px;
+            background-color: black;
+            color: white;
+        }
+
+        #maincontent {
+            max-width: 42em;
+            margin: 15px auto;
+            margin-top: 70px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .post-meta {
+            font-size: 14px;
+            color: rgb(120, 120, 120);
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgb(50, 50, 50);
+        }
+
+        a {
+            color: white;
+            text-decoration: underline;
+        }
+
+        a:hover {
+            color: rgb(0, 133, 41);
+            text-decoration: none;
+        }
+
+        a:visited {
+            color: white;
+        }
+
+        a:active {
+            color: rgb(0, 133, 41);
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: black;
+            padding: 10px 0;
+            z-index: 1000;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 0;
+            padding: 0;
+            max-width: 650px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        nav a {
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        nav a:hover {
+            color: rgb(0, 133, 41);
+        }
+
+        .language-divider {
+            margin: 40px 0;
+            padding: 20px 0;
+            border-top: 1px solid rgb(50, 50, 50);
+            border-bottom: 1px solid rgb(50, 50, 50);
+            text-align: center;
+            color: rgb(120, 120, 120);
+            font-size: 14px;
+        }
+
+        p {
+            margin-bottom: 16px;
+            line-height: 1.8;
+        }
+
+        .language-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .lang-btn {
+            background-color: black;
+            color: white;
+            border: 1px solid white;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .lang-btn:hover {
+            background-color: rgb(0, 133, 41);
+            color: black;
+            border-color: rgb(0, 133, 41);
+        }
+
+        .lang-btn.active {
+            background-color: rgb(0, 133, 41);
+            color: black;
+            border-color: rgb(0, 133, 41);
+        }
+
+        .lang-section {
+            display: none;
+        }
+
+        .lang-section.active {
+            display: block;
+        }
+    </style>
+    <title>Amplify Your Writing with AI - Hugo Tárrega</title>
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li><a href="../index.html">[htarrega.me]</a></li>
+            <li><a href="../cv.html">[cv]</a></li>
+            <li><a href="../books.html">[books]</a></li>
+            <li><a href="../posts.html">[posts]</a></li>
+        </ul>
+    </nav>
+    <div id="maincontent">
+        <h1>Amplify Your Writing with AI</h1>
+        <div class="post-meta">November 2024</div>
+
+        <div class="language-toggle">
+            <button class="lang-btn active" onclick="switchLanguage('en')">English</button>
+            <button class="lang-btn" onclick="switchLanguage('es')">Español</button>
+        </div>
+
+        <div id="en-content" class="lang-section active">
+            <p>This past Friday, I finished teaching my course "Amplify Your Writing with AI" at <a href="https://www.bibliocafe.es/" target="_blank">Bibliocafé</a>. In it, I acted as a sort of Virgil for my students, guiding them in using AI to reduce the tedious parts of the literary process and exploring how to be more creative with the support of LLMs.</p>
+
+            <p>The experience was wonderful. The classes pushed me to revisit my positions on AI, its limitations, the state of the art in the industry, and its current boundaries. Despite all that, I believe I managed to help my students master these tools applied to fiction writing and leave behind certain Luddite fears about progress and machines.</p>
+
+            <p>But still, I wanted to leave a reflection on AI and writing. When an LLM speaks to us, it seems like there's something on the other side that isn't a machine. But it is, even though it doesn't sound like one. We can and should use it in our creative process as just another tool, without forgetting that's what it is: a tool. And without forgetting that tools don't possess a negative or positive charge per se—it's what we do with them that matters.</p>
+
+            <p>As I told my students: use it not at all, a little, or a lot. But don't lose your own voice, your own taste; don't delegate the beauty of writing to the machine. And if you disagree with what the machine says, you can ignore it. If what it says doesn't make sense—which will happen—yell at the robot. At the end of the day, that's all it is.</p>
+        </div>
+
+        <div id="es-content" class="lang-section">
+            <p>Acabé este viernes pasado de impartir mi curso "Amplifica Tu Escritura con IA" en <a href="https://www.bibliocafe.es/" target="_blank">Bibliocafé</a>. En él actuaba como una suerte de Virgilio con el alumnado, guiándoles en el uso de la IA para reducir las partes tediosas del proceso literario y explorando cómo ser más creativos apoyados por los LLM.</p>
+
+            <p>La experiencia fue maravillosa. Las clases me llevaron a revisar mis posturas sobre la IA, sus limitaciones, el estado del arte en la industria y sus límites actuales. Pese a todo eso, creo que logré que mis alumnos dominaran estas herramientas aplicadas al ámbito de la escritura de ficción y abandonaran ciertos miedos luditas sobre el progreso y las máquinas.</p>
+
+            <p>Pero, aún con todo, quería dejar una reflexión al respecto de la IA y la escritura. Cuando un LLM nos habla, parece que al otro lado haya algo que no es una máquina. Pero lo es, aunque no suene como una. Podemos y debemos usarla en nuestro proceso creativo como una herramienta más, sin olvidar que es eso: una herramienta. Sin olvidar también que las herramientas no poseen una carga negativa o positiva per se, sino que es lo que el hombre hace con ellas.</p>
+
+            <p>Como les dije a los alumnos: usadla nada, un poco o mucho. Pero no perdáis vuestra voz propia, vuestro gusto; no deleguéis en la máquina lo hermoso de escribir. Y si no estáis de acuerdo con lo que dice la máquina, podéis no hacerle caso. Si no tiene sentido lo que dice —que ocurrirá—, gritadle al robot. Al final del día, es solo eso.</p>
+        </div>
+    </div>
+
+    <script>
+        function switchLanguage(lang) {
+            document.getElementById('en-content').classList.remove('active');
+            document.getElementById('es-content').classList.remove('active');
+
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+
+            if (lang === 'en') {
+                document.getElementById('en-content').classList.add('active');
+                document.querySelectorAll('.lang-btn')[0].classList.add('active');
+            } else {
+                document.getElementById('es-content').classList.add('active');
+                document.querySelectorAll('.lang-btn')[1].classList.add('active');
+            }
+        }
+    </script>
+</body>
+
+</html>

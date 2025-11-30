@@ -304,7 +304,6 @@
 
             const sortedBooks = sortBooks(books);
             sortedBooks.forEach(book => {
-                // Grid view
                 const gridItem = document.createElement('div');
                 gridItem.className = 'book-item';
                 gridItem.innerHTML = `
@@ -316,7 +315,6 @@
                 `;
                 gridView.appendChild(gridItem);
 
-                // List view
                 const listItem = document.createElement('div');
                 listItem.className = 'book-list-item';
                 listItem.innerHTML = `
@@ -327,7 +325,6 @@
             });
         }
 
-        // Event listeners for sorting
         document.querySelectorAll('.sort-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
@@ -337,7 +334,6 @@
             });
         });
 
-        // Event listeners for view toggle
         document.querySelectorAll('.view-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
@@ -357,7 +353,6 @@
             });
         });
 
-        // Load books on page load
         loadBooks();
     </script>
 </body>
