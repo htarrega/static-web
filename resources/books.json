@@ -78,5 +78,15 @@
     "title": "Nausea",
     "author": "Jean Paul Sartre",
     "cover": "images/books/nausea.jpg"
-  }
+  },
+  {
+    "title": "The Exegesis of Philip K Dick",
+    "author": "Pamela Jackson and Jonathan Lethem",
+    "cover": "images/books/exegesis.jpg"
+  },
+  {
+    "title": "The Pragmatic Programmer",
+    "author": "David Thomas and Andrew Hunt",
+    "cover": "images/books/pragmatic_programmer.jpg"
+  },
 ]
