@@ -68,5 +68,15 @@
     "title": "The Unworthy",
     "author": "Agustina Bazterrica",
     "cover": "images/books/the_unworthy.jpg"
+  },
+  {
+    "title": "Man and His Symbols",
+    "author": "Karl G. Jung",
+    "cover": "images/books/symbols.jpg"
+  },
+  {
+    "title": "Nausea",
+    "author": "Jean Paul Sartre",
+    "cover": "images/books/nausea.jpg"
   }
 ]
