@@ -12,6 +12,7 @@
     <link rel="apple-touch-icon" href="favicon/apple-touch-icon.png">
     <style>
         body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
             line-height: 1.4;
             font-size: 17px;
             padding: 0 10px;
@@ -41,7 +42,7 @@
         }
 
         a:hover {
-            color: rgb(0, 133, 41);
+            color: rgb(0, 172, 75);
             text-decoration: none;
         }
 
@@ -50,7 +51,7 @@
         }
 
         a:active {
-            color: rgb(0, 133, 41);
+            color: rgb(0, 172, 75);
         }
 
         nav {
@@ -81,13 +82,19 @@
         }
 
         nav a:hover {
-            color: rgb(0, 133, 41);
+            color: rgb(0, 172, 75);
         }
 
         .post-item {
             margin-bottom: 30px;
-            padding-bottom: 20px;
+            padding: 20px;
             border-bottom: 1px solid rgb(50, 50, 50);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .post-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
         }
 
         .post-item:last-child {
@@ -107,7 +114,7 @@
         }
 
         .post-title a:hover {
-            color: rgb(0, 133, 41);
+            color: rgb(0, 172, 75);
             text-decoration: underline;
         }
 
@@ -131,7 +138,7 @@
         }
 
         .post-read-more:hover {
-            color: rgb(0, 133, 41);
+            color: rgb(0, 172, 75);
             text-decoration: none;
         }
     </style>
@@ -178,6 +185,7 @@
             posts.forEach(post => {
                 const postElement = document.createElement('div');
                 postElement.className = 'post-item';
+                postElement.onclick = () => window.location.href = post.url || '#';
                 postElement.innerHTML = `
                     <h3 class="post-title"><a href="${post.url || '#'}">${post.title}</a></h3>
                     <div class="post-meta">${post.date}</div>

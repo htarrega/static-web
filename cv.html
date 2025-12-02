@@ -18,10 +18,12 @@
         }
 
         body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
             line-height: 1.6;
             font-size: 17px;
             background-color: black;
             color: white;
+            letter-spacing: 0.3px;
         }
 
         nav {
@@ -52,7 +54,7 @@
         }
 
         nav a:hover {
-            color: rgb(0, 133, 41);
+            color: rgb(0, 172, 75);
         }
 
         #maincontent {
@@ -68,49 +70,52 @@
         }
 
         a:hover {
-            color: rgb(0, 133, 41);
+            color: rgb(0, 172, 75);
             text-decoration: none;
         }
 
         .cv-header {
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgb(40, 40, 40);
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 2px solid white;
         }
 
         .cv-header h1 {
-            font-size: 36px;
+            font-size: 38px;
             font-weight: 700;
-            margin-bottom: 8px;
-            letter-spacing: -0.5px;
+            margin-bottom: 14px;
+            letter-spacing: 0.5px;
+            color: white;
         }
 
         .contact-info {
             display: flex;
             flex-wrap: wrap;
-            gap: 15px;
-            font-size: 14px;
+            gap: 20px;
+            font-size: 13px;
             color: rgb(160, 160, 160);
+            letter-spacing: 0.3px;
         }
 
         .contact-info a {
             color: rgb(160, 160, 160);
             text-decoration: none;
+            transition: color 0.2s;
         }
 
         .contact-info a:hover {
-            color: rgb(0, 133, 41);
+            color: rgb(0, 172, 75);
         }
 
         h2 {
             font-size: 18px;
             font-weight: 700;
-            margin: 20px 0 15px 0;
+            margin: 32px 0 20px 0;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.2px;
             color: white;
-            border-bottom: 2px solid rgb(40, 40, 40);
-            padding-bottom: 8px;
+            border-bottom: 2px solid white;
+            padding-bottom: 12px;
         }
 
         h2:first-of-type {
@@ -118,8 +123,15 @@
         }
 
         .entry {
-            margin-bottom: 18px;
-            padding-bottom: 0;
+            margin-bottom: 25px;
+            padding: 16px;
+            background-color: rgba(255, 255, 255, 0.03);
+            border-left: 3px solid white;
+            transition: all 0.3s ease;
+        }
+
+        .entry:hover {
+            background-color: rgba(255, 255, 255, 0.05);
         }
 
         .entry:last-of-type {
@@ -130,77 +142,103 @@
             display: grid;
             grid-template-columns: 1fr auto;
             gap: 15px;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
             align-items: baseline;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
         }
 
         .entry-company {
-            font-size: 17px;
+            font-size: 18px;
             font-weight: 700;
             color: white;
+            letter-spacing: 0.5px;
         }
 
         .entry-date {
             font-size: 13px;
-            color: rgb(120, 120, 120);
+            color: white;
             white-space: nowrap;
             text-align: right;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
         }
 
         .entry-location {
             font-size: 13px;
-            color: rgb(120, 120, 120);
-            margin-bottom: 3px;
+            color: white;
+            margin-bottom: 6px;
             display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
         .entry-title {
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 600;
-            color: rgb(180, 180, 180);
-            margin-bottom: 4px;
+            color: white;
+            margin-bottom: 0;
+            letter-spacing: 0.4px;
         }
 
         .entry-description {
-            font-size: 17px;
-            color: rgb(200, 200, 200);
-            line-height: 1.5;
+            font-size: 16px;
+            color: white;
+            line-height: 1.7;
             margin-bottom: 0;
+            margin-top: 10px;
         }
 
         .skills-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
-            margin-top: 12px;
+            margin-top: 16px;
         }
 
         .skill-group {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 8px;
+            padding: 14px;
+            background-color: rgba(255, 255, 255, 0.03);
+            border-left: 2px solid white;
+            transition: all 0.3s ease;
+        }
+
+        .skill-group:hover {
+            background-color: rgba(255, 255, 255, 0.05);
         }
 
         .skill-label {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
-            color: rgb(120, 120, 120);
+            color: white;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.6px;
         }
 
         .skill-items {
-            font-size: 16px;
-            color: rgb(200, 200, 200);
-            line-height: 1.6;
+            font-size: 15px;
+            color: white;
+            line-height: 1.7;
         }
 
         .award-item {
-            margin-bottom: 10px;
-            padding-left: 0;
-            font-size: 16px;
-            color: rgb(200, 200, 200);
-            line-height: 1.6;
+            margin-bottom: 16px;
+            padding: 14px;
+            padding-left: 16px;
+            font-size: 15px;
+            color: white;
+            line-height: 1.7;
+            background-color: rgba(255, 255, 255, 0.03);
+            border-left: 2px solid white;
+            transition: all 0.3s ease;
+        }
+
+        .award-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
         }
 
         .award-item:last-child {
@@ -208,8 +246,9 @@
         }
 
         .award-highlight {
-            color: rgb(180, 180, 180);
-            font-weight: 600;
+            color: white;
+            font-weight: 700;
+            letter-spacing: 0.3px;
         }
 
         .download-section {
@@ -233,9 +272,9 @@
         }
 
         .download-btn:hover {
-            background-color: rgb(0, 133, 41);
+            background-color: rgb(0, 172, 75);
             color: black;
-            border-color: rgb(0, 133, 41);
+            border-color: rgb(0, 172, 75);
         }
 
         @media (max-width: 600px) {
@@ -244,11 +283,17 @@
             }
 
             .cv-header h1 {
-                font-size: 28px;
+                font-size: 32px;
+            }
+
+            .entry {
+                padding: 12px;
             }
 
             .entry-header {
                 grid-template-columns: 1fr;
+                margin-bottom: 8px;
+                padding-bottom: 8px;
             }
 
             .entry-date {
@@ -259,8 +304,14 @@
                 grid-template-columns: 1fr;
             }
 
+            .skill-group {
+                padding: 12px;
+            }
+
             h2 {
                 font-size: 16px;
+                margin: 28px 0 18px 0;
+                padding-bottom: 10px;
             }
         }
     </style>
@@ -283,7 +334,7 @@
             <h1>Hugo Tárrega</h1>
             <div class="contact-info">
                 <a href="mailto:hugots363@gmail.com">[email]</a>
-                <a href="https://github.com/htarrega" target="_blank">[gitHub]</a>
+                <a href="https://github.com/htarrega" target="_blank">[github]</a>
                 <a href="https://linkedin.com/in/htarrega" target="_blank">[linkedIn]</a>
             </div>
         </div>
@@ -395,12 +446,14 @@
         </div>
 
         <div class="award-item">
-            <span class="award-highlight"><a href="https://dl.acm.org/doi/10.1145/3524059.3532383" target="_blank">Fast-track cache: A huge racetrack memory L1 data cache</a></span> — H. Tárrega et
+            <span class="award-highlight"><a href="https://dl.acm.org/doi/10.1145/3524059.3532383"
+                    target="_blank">Fast-track cache: A huge racetrack memory L1 data cache</a></span> — H. Tárrega et
             al. 2022. ICS '22, ACM, Article 23.
         </div>
 
         <div class="award-item">
-            <span class="award-highlight"><a href="https://zenodo.org/records/6491162" target="_blank">L1 Cache Design using Domain Wall Memory</a></span> — H. Tárrega et al. 2021.
+            <span class="award-highlight"><a href="https://zenodo.org/records/6491162" target="_blank">L1 Cache Design
+                    using Domain Wall Memory</a></span> — H. Tárrega et al. 2021.
         </div>
 
         <div class="award-item">
