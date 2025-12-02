@@ -108,5 +108,20 @@
     "title": "The Epic of Gilgamesh",
     "author": "",
     "cover": "images/books/gilga.jpg"
+  },
+  {
+    "title": "Modern Prophecies",
+    "author": "Goya, Munch",
+    "cover": "images/books/prop.jpg"
+  },
+  {
+    "title": "In Cold Blood",
+    "author": "Truman Capote",
+    "cover": "images/books/cold_blood.jpg"
+  },
+  {
+    "title": "Berserk",
+    "author": "Kentaro Miura",
+    "cover": "images/books/berserk.jpg"
   }
 ]
