@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -150,11 +150,11 @@
         <div class="post-meta">Diciembre 2025</div>
 
         <div class="language-toggle">
-            <button class="lang-btn active" onclick="switchLanguage('es')">Español</button>
-            <button class="lang-btn" onclick="switchLanguage('en')">English</button>
+            <button class="lang-btn active" onclick="switchLanguage('en')">English</button>
+            <button class="lang-btn" onclick="switchLanguage('es')">Español</button>
         </div>
 
-        <div id="es-content" class="lang-section active">
+        <div id="es-content" class="lang-section">
             <p>¿Y si todo lo que sabemos sobre resolver problemas fuera irrelevante? Y si no relevante, al menos
                 secundario. La inteligencia artificial nos está enseñando una lección incómoda: a veces, la experiencia
                 humana no es el mejor camino hacia la solución.</p>
@@ -184,7 +184,7 @@
                 que la experiencia humana seguirá siendo insustituible?</p>
         </div>
 
-        <div id="en-content" class="lang-section">
+        <div id="en-content" class="lang-section active">
             <p>What if everything we know about problem-solving were irrelevant? Or if not irrelevant, at least
                 secondary. Artificial intelligence is teaching us an uncomfortable lesson: sometimes, human experience
                 is not the best path to a solution.</p>
@@ -224,10 +224,10 @@
 
             if (lang === 'en') {
                 document.getElementById('en-content').classList.add('active');
-                document.querySelectorAll('.lang-btn')[1].classList.add('active');
+                document.querySelectorAll('.lang-btn')[0].classList.add('active');
             } else {
                 document.getElementById('es-content').classList.add('active');
-                document.querySelectorAll('.lang-btn')[0].classList.add('active');
+                document.querySelectorAll('.lang-btn')[1].classList.add('active');
             }
         }
     </script>
