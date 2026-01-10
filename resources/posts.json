@@ -1,5 +1,11 @@
 [
   {
+    "title": "Prozbul",
+    "date": "January  2026",
+    "excerpt": "An author should limit himself",
+    "url": "posts/prozbul.html"
+  },
+  {
     "title": "Comments on the Bitter Lesson",
     "date": "December 2025",
     "excerpt": "A reflection on how computational brute force is surpassing human expertise, and why this truth is uncomfortable.",
@@ -7,7 +13,7 @@
   },
   {
     "title": "Amplify Your Writing with AI",
-    "date": "November 2025",
+    "date": "November 2024",
     "excerpt": "Reflections on teaching AI and writing, and how to use LLMs as a tool without losing your own voice.",
     "url": "posts/amplify-writing-with-ai.html"
   }
