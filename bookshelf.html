@@ -323,7 +323,7 @@
                 const gridItem = document.createElement('div');
                 gridItem.className = 'book-item';
                 gridItem.innerHTML = `
-                    <img src="${book.cover}" alt="${book.title}" class="book-cover" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22150%22 height=%22225%22%3E%3Crect fill=%22%23333%22 width=%22150%22 height=%22225%22/%3E%3Ctext x=%2275%22 y=%22112%22 text-anchor=%22middle%22 fill=%22%23999%22 font-size=%2214%22%3E${book.title}%3C/text%3E%3C/svg%3E'">
+                    <img src="${book.cover}" alt="${book.title}" class="book-cover" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22150%22 height=%22225%22%3E%3Crect fill=%22%23333%22 width=%22150%22 height=%22225%22/%3E%3Ctext x=%2275%22 y=%22112%22 text-anchor=%22middle%22 fill=%22%23999%22 font-size=%2214%22%3E${book.title}%3C/text%3E%3C/svg%3E'">
                     <div class="book-info">
                         <div class="book-title">${book.title}</div>
                         <div class="book-author">${book.author}</div>
