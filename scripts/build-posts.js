@@ -339,9 +339,9 @@ ${languageScript}
  * Main build function
  */
 function buildPosts() {
-    const draftsDir = path.join(__dirname, 'posts', 'drafts');
-    const postsDir = path.join(__dirname, 'posts');
-    const postsJsonPath = path.join(__dirname, 'resources', 'posts.json');
+    const draftsDir = path.join(__dirname, '..', 'posts', 'drafts');
+    const postsDir = path.join(__dirname, '..', 'posts');
+    const postsJsonPath = path.join(__dirname, '..', 'resources', 'posts.json');
 
     // Check if drafts directory exists
     if (!fs.existsSync(draftsDir)) {

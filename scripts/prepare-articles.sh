@@ -3,7 +3,7 @@
 # Simple script to publish articles
 
 echo "📝 Building articles from markdown..."
-node build-posts.js
+node "$(dirname "$0")/build-posts.js"
 
 if [ $? -ne 0 ]; then
     echo "❌ Build failed. Please check the error above."
