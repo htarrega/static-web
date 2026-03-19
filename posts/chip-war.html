@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="La Guerra de los Chips y su importancia histórica" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@htarrega" />
+    <link rel="canonical" href="http://htarrega.me/posts/chip-war.html" />
+    <link rel="icon" href="../favicon/favicon.png" type="image/png">
+    <link rel="apple-touch-icon" href="../favicon/apple-touch-icon.png">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+            line-height: 1.6;
+            font-size: 17px;
+            padding: 0 10px;
+            margin: 50px auto;
+            max-width: 650px;
+            background-color: black;
+            color: white;
+        }
+
+        #maincontent {
+            max-width: 42em;
+            margin: 15px auto;
+            margin-top: 70px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-top: 25px;
+            margin-bottom: 12px;
+        }
+
+        .post-meta {
+            font-size: 14px;
+            color: rgb(120, 120, 120);
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgb(50, 50, 50);
+        }
+
+        a {
+            color: white;
+            text-decoration: underline;
+        }
+
+        a:hover {
+            color: rgb(0, 172, 75);
+            text-decoration: none;
+        }
+
+        a:visited {
+            color: white;
+        }
+
+        a:active {
+            color: rgb(0, 172, 75);
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: black;
+            padding: 10px 0;
+            z-index: 1000;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 0;
+            padding: 0;
+            max-width: 650px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        nav a {
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        nav a:hover {
+            color: rgb(0, 172, 75);
+        }
+
+        p {
+            margin-bottom: 16px;
+            line-height: 1.8;
+        }
+
+        strong {
+            font-weight: 600;
+        }
+
+        em {
+            font-style: italic;
+        }
+
+        .language-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .lang-btn {
+            background-color: black;
+            color: white;
+            border: 1px solid white;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .lang-btn:hover {
+            background-color: rgb(0, 172, 75);
+            color: black;
+            border-color: rgb(0, 172, 75);
+        }
+
+        .lang-btn.active {
+            background-color: white;
+            color: black;
+            border-color: white;
+        }
+
+        .lang-section {
+            display: none;
+        }
+
+        .lang-section.active {
+            display: block;
+        }
+    </style>
+    <title>Was it hardware, all the way - Hugo Tárrega</title>
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li><a href="../index.html">[htarrega.me]</a></li>
+            <li><a href="../cv.html">[cv]</a></li>
+            <li><a href="../bookshelf.html">[bookshelf]</a></li>
+            <li><a href="../posts.html">[posts]</a></li>
+        </ul>
+    </nav>
+    <div id="maincontent">
+        <h1>Was it hardware, all the way</h1>
+        <div class="post-meta">March 2026</div>
+
+        <div class="language-toggle">
+            <button class="lang-btn active" onclick="switchLanguage('es')">Español</button>
+            <button class="lang-btn" onclick="switchLanguage('en')">English</button>
+        </div>
+
+        <div id="es-content" class="lang-section active">
+            <p>
+                La Guerra de los Chips me ha golpeado como un tren de mercancías. Después del impacto, no sé si será
+                posible recuperarme de la impronta que me ha dejado. Todo son los chips y, al final del día, todo
+                depende de ellos. Por desgracia, fabricarlos no es como plantar pistachos. La cadena de suministros
+                que los provee es, sin lugar a dudas, el cuello de botella más grande que existe en nuestro siglo. Sin
+                ellos no hay servidores, no hay aviones, no hay coches inteligentes, no hay móviles... y, lo que es
+                más inquietante, sin ellos no hay armamento moderno, no hay satélites, no hay infraestructura crítica.
+                La dependencia no es metafórica.
+            </p>
+            <p>
+                Esta cadena de suministro, con todas sus ramificaciones geopolíticas, permea toda nuestra vida de un
+                modo que la mayoría prefiere ignorar. Para mí solo existen dos opciones actualmente: la primera es
+                retirarnos a la vida contemplativa, mudarnos a una cueva e intentar sobrevivir de lo que la tierra nos
+                provea. La segunda, quizá menos radical pero infinitamente más urgente, pasa por entender que los chips
+                no crecen de los árboles. Entenderlo nos llevará a entender uno de los mayores conflictos de nuestro
+                tiempo: el monopolio de facto de TSMC en la producción de chips de vanguardia y la pugna entre las dos
+                principales potencias para controlar el destino de la pequeña Taiwán. La dependencia de ASML y de sus
+                máquinas de litografía que pesan lo que dos aviones Airbus. Una sola empresa holandesa controla la
+                tecnología sin la cual no existe ningún chip avanzado en el planeta. El monopolio dentro del monopolio.
+            </p>
+            <p>
+                La Guerra de los Chips consigue exactamente eso: darte las herramientas para entender un conflicto que
+                ya no es solo tecnológico, sino profundamente humano y político. Chris Miller no escribe para
+                ingenieros, escribe para cualquiera que quiera comprender. A través de sus páginas, la geopolítica deja
+                de ser abstracta y se convierte en algo tan concreto como los misiles que sobrevuelan Irán. Miller
+                traza con precisión cómo décadas de decisiones industriales, académicas y militares han desembocado en
+                un mundo donde una isla de 36.000 km² concentra un poder productivo sin precedentes en la historia
+                moderna. Es, en ese sentido, un libro necesario, inevitable e incómodo.
+            </p>
+            <p>
+                Como conclusión, La Guerra de los Chips es uno de los libros más importantes de nuestro siglo, y lo es
+                precisamente porque no pretende serlo. No es un manifiesto ni una predicción apocalíptica: es un
+                diagnóstico. Técnico o no, deberías leerlo. Entenderás todos los porqués, lo que te permitirá formar
+                un criterio propio. Ese criterio propio te permitirá navegar las relaciones internacionales mejor que
+                ningún discurso o tabla. Nuestro día a día está saturado de opiniones, abandonemoslas para abrazar los
+                hechos. Lee La Guerra de los Chips.
+            </p>
+        </div>
+
+        <div id="en-content" class="lang-section">
+            <p>
+                <em>Chip War: The Fight for the World's Most Critical Technology</em> hit me like a freight train.
+                After the impact, I'm not sure it will be possible to recover from the impression it has left on me.
+                Everything comes down to chips and, at the end of the day, everything depends on them. Unfortunately,
+                making them is nothing like growing pistachios. The supply chain that provides them is, without a
+                doubt, the single greatest bottleneck of our century. Without them there are no servers, no planes, no
+                smart cars, no phones... and, more unsettlingly, without them there is no modern weaponry, no
+                satellites, no critical infrastructure. The dependency is not metaphorical.
+            </p>
+            <p>
+                This supply chain, with all its geopolitical ramifications, permeates every aspect of our lives in a
+                way that most people prefer to ignore. As I see it, only two options currently exist: the first is to
+                retreat into a contemplative life, move to a cave, and try to survive off whatever the earth provides.
+                The second, perhaps less radical but infinitely more urgent, requires understanding that chips don't
+                grow on trees. Understanding this will lead us to understand one of the greatest conflicts of our time:
+                TSMC's de facto monopoly on the production of cutting-edge chips and the struggle between the two major
+                powers to control the fate of little Taiwan. The dependence on ASML and its lithography machines that
+                weigh as much as two Airbus aircraft. A single Dutch company controls the technology without which no
+                advanced chip on the planet exists. The monopoly within the monopoly.
+            </p>
+            <p>
+                <em>Chip War</em> achieves exactly that: giving you the tools to understand a conflict that is no
+                longer merely technological, but profoundly human and political. Chris Miller doesn't write for
+                engineers — he writes for anyone who wants to understand. Through its pages, geopolitics ceases to be
+                abstract and becomes something as concrete as the missiles flying over Iran. Miller traces with
+                precision how decades of industrial, academic, and military decisions have led to a world where an
+                island of 36,000 km² concentrates a productive power without precedent in modern history. It is, in
+                that sense, a necessary, inevitable, and uncomfortable book.
+            </p>
+            <p>
+                In conclusion, <em>Chip War</em> is one of the most important books of our century, and it is so
+                precisely because it does not try to be. It is not a manifesto or an apocalyptic prediction: it is a
+                diagnosis. Technical background or not, you should read it. You will understand all the whys, which
+                will allow you to form your own informed view. That informed view will allow you to navigate
+                international relations better than any speech or chart. In a world saturated with opinions, that view
+                is worth more than any headline. Read <em>Chip War</em>.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function switchLanguage(lang) {
+            document.getElementById('en-content').classList.remove('active');
+            document.getElementById('es-content').classList.remove('active');
+
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+
+            if (lang === 'es') {
+                document.getElementById('es-content').classList.add('active');
+                document.querySelectorAll('.lang-btn')[0].classList.add('active');
+            } else {
+                document.getElementById('en-content').classList.add('active');
+                document.querySelectorAll('.lang-btn')[1].classList.add('active');
+            }
+        }
+    </script>
+</body>
+
+</html>
