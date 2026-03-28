@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A reflection on how computational brute force is surpassing human expertise, and why this truth is uncomfortable." />
+    <meta name="description" content="Do you want to reduce your token usage by 10x?" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:site" content="@htarrega" />
-    <link rel="canonical" href="http://htarrega.me/posts/comentarios-leccion-amarga.html" />
+    <link rel="canonical" href="http://htarrega.me/posts/defuddle-yourself.html" />
     <link rel="icon" href="../favicon/favicon.png" type="image/png">
     <link rel="apple-touch-icon" href="../favicon/apple-touch-icon.png">
     <style>
@@ -206,7 +206,7 @@
             display: block;
         }
     </style>
-    <title>Comments on the Bitter Lesson - Hugo Tárrega</title>
+    <title>Defuddle yourself - Hugo Tárrega</title>
 </head>
 
 <body>
@@ -219,8 +219,8 @@
         </ul>
     </nav>
     <div id="maincontent">
-        <h1>Comments on the Bitter Lesson</h1>
-        <div class="post-meta">December 2025</div>
+        <h1>Defuddle yourself</h1>
+        <div class="post-meta">March 2026</div>
         
         <div class="language-toggle">
             <button class="lang-btn active" onclick="switchLanguage('es')">Español</button>
@@ -229,49 +229,125 @@
         
         <div id="es-content" class="lang-section active">
             <p>
-¿Y si todo lo que sabemos sobre resolver problemas fuera irrelevante? Y si no relevante, al menos secundario. La inteligencia artificial nos está enseñando una lección incómoda: a veces, la experiencia humana no es el mejor camino hacia la solución.
+¿Quieres reducir 10x tu uso de tokens? In this economy? Sí. Con un hook de 15 líneas.
 </p>
 <p>
-Richard Sutton identificó un patrón en la investigación de IA: los enfoques basados en conocimiento humano terminan siendo superados por la fuerza bruta computacional.
+Hay un problema que todos aceptamos sin pararnos a pensar. Cada vez que Claude Code necesita leer una página web, llama a <code>WebFetch</code> y recibe el HTML entero: navbars, footers, scripts de tracking, banners de cookies, anuncios, CSS inline. Son miles de tokens que no aportan nada. Como pedirle a alguien que te cuente una noticia y que te lea el periódico entero.
 </p>
 <p>
-El ajedrez lo ilustra perfectamente. Durante décadas, los programadores codificaron sabiduría ajedrecística: control del centro, desarrollo de piezas, seguridad del rey. Deep Blue combinaba este conocimiento con 200 millones de posiciones por segundo. Pero AlphaZero de Google lo cambió todo: venció en ajedrez, shogi y go sin conocimiento previo, solo entrenándose contra sí misma.
+Tú pagas por esos tokens. Y Claude los procesa todos, ensuciando además tu ventana de contexto. ¿Cómo arreglamos esto? <a href="https://github.com/kepano/defuddle" target="_blank">Defuddle</a> es una herramienta de Kepano — el creador de Obsidian — que hace una sola cosa: recibe una URL, extrae el contenido principal y te lo devuelve en markdown. Esto elimina los tokens que no aportan valor, como se puede ver en esta tabla comparativa sobre obtener la página de <a href="https://lldb.llvm.org/use/mcp.html" target="_blank">documentacion de lldb</a>:
+</p>
+<table>
+<tr>
+<th>Método</th>
+<th>~Tokens</th>
+<th>vs Defuddle</th>
+</tr>
+<tr>
+<td>Raw HTML</td>
+<td>11,116</td>
+<td>16x more</td>
+</tr>
+<tr>
+<td>Defuddle</td>
+<td>682</td>
+<td>baseline</td>
+</tr>
+</table>
+<p>
+Los hooks de Claude Code permiten interceptar herramientas antes de que se ejecuten. Combinando ambas cosas, podemos meter un <code>PreToolUse</code> que atrape cada llamada a <code>WebFetch</code>, corra Defuddle, le pase a Claude el markdown limpio como contexto, y bloquee el fetch original. Claude nunca ve el HTML. Solo recibe lo que importa.
 </p>
 <p>
-Este resultado captura la esencia de la Lección Amarga: dejar que la IA aprenda por sí misma es más efectivo que codificar conocimiento humano. Las máquinas son extraordinariamente buenas en buscar y aprender, dos habilidades que escalan infinitamente. La fuerza bruta vence a la experiencia experta.
+Primero instala la herramienta con:
 </p>
 <p>
-La lección es amarga porque nuestro conocimiento, construido durante toda una vida, resulta secundario frente a más poder computacional.
+<code>npm install -g defuddle</code>
 </p>
 <p>
-Si quieres profundizar en este concepto que está transformando no solo el ajedrez, sino potencialmente todo, recomiendo leer <a href="http://www.incompleteideas.net/IncIdeas/BitterLesson.html" target="_blank">el ensayo completo de Richard Sutton</a>. Es muy breve e ilustra perfectamente esta verdad incómoda.
+Para configurarlo, agrega esto a <code>~/.claude/settings.json</code>. Si lo copias y lo pegas en Claude Code, lo hará el mismo.
 </p>
+<pre><code>{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "WebFetch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"\nimport json, sys, subprocess\ndata = json.load(sys.stdin)\nurl = data.get('tool_input', {}).get('url', '')\nresult = subprocess.run(['npx', 'defuddle', 'parse', url, '--markdown'], capture_output=True, text=True)\ncontent = result.stdout if result.returncode == 0 else result.stderr\nprint(json.dumps({'hookSpecificOutput': {'hookEventName': 'PreToolUse', 'additionalContext': f'Webpage content (via defuddle) for {url}:\\n\\n{content}', 'permissionDecision': 'deny', 'permissionDecisionReason': 'Content fetched via defuddle; see additionalContext'}}))\n\"",
+            "timeout": 30,
+            "statusMessage": "Fetching page with defuddle"
+          }
+        ]
+      }
+    ]
+  }
+}
+</code></pre>
 <p>
-¿En qué áreas de tu trabajo o profesión crees que la Lección Amarga podría aplicarse, y dónde consideras que la experiencia humana seguirá siendo insustituible?
+El resultado no es solo ahorro. Es que Claude piensa mejor cuando no tiene que desenterrar el sentido de entre escombros de HTML. Más espacio en la ventana de contexto y más dinero en forma de tokens para ti.
 </p>
         </div>
 
         <div id="en-content" class="lang-section">
             <p>
-What if everything we know about problem-solving were irrelevant? Or if not irrelevant, at least secondary. Artificial intelligence is teaching us an uncomfortable lesson: sometimes, human experience is not the best path to a solution.
+Do you want to reduce your token usage by 10x? In this economy? Yes. With a 15-line hook.
 </p>
 <p>
-Richard Sutton identified a pattern in AI research: approaches based on human knowledge end up being surpassed by computational brute force.
+There's a problem we all accept without stopping to think about it. Every time Claude Code needs to read a web page, it calls <code>WebFetch</code> and receives the entire HTML: navbars, footers, tracking scripts, cookie banners, ads, inline CSS. Thousands of tokens that add nothing. It's like asking someone to tell you the news and having them read you the entire newspaper.
 </p>
 <p>
-Chess illustrates this perfectly. For decades, programmers encoded chess wisdom: center control, piece development, king safety. Deep Blue combined this knowledge with 200 million positions per second. But Google's AlphaZero changed everything: it defeated chess, shogi, and go without prior knowledge, only training against itself.
+You pay for those tokens. And Claude processes all of them, polluting your context window in the process. How do we fix this? <a href="https://github.com/kepano/defuddle" target="_blank">Defuddle</a> is a tool by Kepano — the creator of Obsidian — that does one thing: it takes a URL, extracts the main content, and returns it as markdown. This eliminates tokens that add no value, as you can see in this comparison table for fetching the <a href="https://lldb.llvm.org/use/mcp.html" target="_blank">lldb documentation page</a>:
+</p>
+<table>
+<tr>
+<th>Method</th>
+<th>~Tokens</th>
+<th>vs Defuddle</th>
+</tr>
+<tr>
+<td>Raw HTML</td>
+<td>11,116</td>
+<td>16x more</td>
+</tr>
+<tr>
+<td>Defuddle</td>
+<td>682</td>
+<td>baseline</td>
+</tr>
+</table>
+<p>
+Claude Code hooks let you intercept tools before they execute. Combining both, we can set up a <code>PreToolUse</code> that catches every <code>WebFetch</code> call, runs Defuddle, passes Claude the clean markdown as context, and blocks the original fetch. Claude never sees the HTML. It only gets what matters.
 </p>
 <p>
-This result captures the essence of the Bitter Lesson: letting AI learn by itself is more effective than encoding human knowledge. Machines are extraordinarily good at searching and learning, two skills that scale infinitely. Brute force beats expert experience.
+First, install the tool with:
 </p>
 <p>
-The lesson is bitter because our knowledge, built over a lifetime, becomes secondary in the face of more computational power.
+<code>npm install -g defuddle</code>
 </p>
 <p>
-If you want to delve deeper into this concept that is transforming not only chess, but potentially everything, I recommend reading <a href="http://www.incompleteideas.net/IncIdeas/BitterLesson.html" target="_blank">Richard Sutton's complete essay</a>. It's very brief and perfectly illustrates this uncomfortable truth.
+To set it up, add this to <code>~/.claude/settings.json</code>. If you copy and paste it into Claude Code, it'll do it itself.
 </p>
+<pre><code>{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "WebFetch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"\nimport json, sys, subprocess\ndata = json.load(sys.stdin)\nurl = data.get('tool_input', {}).get('url', '')\nresult = subprocess.run(['npx', 'defuddle', 'parse', url, '--markdown'], capture_output=True, text=True)\ncontent = result.stdout if result.returncode == 0 else result.stderr\nprint(json.dumps({'hookSpecificOutput': {'hookEventName': 'PreToolUse', 'additionalContext': f'Webpage content (via defuddle) for {url}:\\n\\n{content}', 'permissionDecision': 'deny', 'permissionDecisionReason': 'Content fetched via defuddle; see additionalContext'}}))\n\"",
+            "timeout": 30,
+            "statusMessage": "Fetching page with defuddle"
+          }
+        ]
+      }
+    ]
+  }
+}
+</code></pre>
 <p>
-In what areas of your work or profession do you think the Bitter Lesson could apply, and where do you consider that human experience will remain irreplaceable?
+The result isn't just savings. Claude thinks better when it doesn't have to dig meaning out of HTML rubble. More room in the context window and more money in the form of tokens back in your pocket.
 </p>
         </div>
     </div>

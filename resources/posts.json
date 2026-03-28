@@ -1,8 +1,14 @@
 [
   {
-    "title": "Was it hardware, all the way",
+    "title": "Defuddle yourself",
     "date": "March 2026",
-    "excerpt": "Read Chip War!",
+    "excerpt": "Do you want to reduce your token usage by 10x?",
+    "url": "posts/defuddle-yourself.html"
+  },
+  {
+    "title": "Was it hardware, all the way?",
+    "date": "March 2026",
+    "excerpt": "Read it!",
     "url": "posts/chip-war.html"
   },
   {

@@ -118,6 +118,57 @@
             font-style: italic;
         }
 
+        pre {
+            background-color: rgb(20, 20, 20);
+            border: 1px solid rgb(50, 50, 50);
+            border-radius: 6px;
+            padding: 16px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            font-size: inherit;
+            color: rgb(200, 200, 200);
+        }
+
+        code {
+            background-color: rgb(30, 30, 30);
+            border: 1px solid rgb(60, 60, 60);
+            border-radius: 3px;
+            padding: 2px 5px;
+            font-size: 14px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            color: rgb(200, 200, 200);
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+            font-size: 15px;
+        }
+
+        th, td {
+            border: 1px solid rgb(60, 60, 60);
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: rgb(20, 20, 20);
+            font-weight: 600;
+            color: rgb(0, 172, 75);
+        }
+
+        tr:nth-child(even) td {
+            background-color: rgb(10, 10, 10);
+        }
+
         .language-toggle {
             display: flex;
             gap: 10px;

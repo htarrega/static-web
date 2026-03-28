@@ -10,6 +10,27 @@ const path = require('path');
 function markdownToHtml(markdown) {
     let html = markdown;
 
+    // Extract fenced code blocks before any other processing
+    const codeBlocks = [];
+    html = html.replace(/```[\w]*\n([\s\S]*?)```/g, (match, code) => {
+        const escaped = code
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+        const placeholder = `\x00CODEBLOCK${codeBlocks.length}\x00`;
+        codeBlocks.push(`<pre><code>${escaped}</code></pre>`);
+        return placeholder;
+    });
+
+    // Inline code
+    html = html.replace(/`([^`]+)`/g, (match, code) => {
+        const escaped = code
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+        return `<code>${escaped}</code>`;
+    });
+
     // Headers
     html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
     html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
@@ -27,38 +48,76 @@ function markdownToHtml(markdown) {
     // Paragraphs (split by double newline)
     const lines = html.split('\n');
     let inParagraph = false;
+    let inTable = false;
     let result = [];
 
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
+        const isTableRow = line.startsWith('|') && line.endsWith('|');
+        const isSeparatorRow = isTableRow && /^\|[\s\-|]+\|$/.test(line);
 
-        if (line === '') {
+        if (isTableRow) {
             if (inParagraph) {
                 result.push('</p>');
                 inParagraph = false;
             }
-        } else if (line.startsWith('<h') || line.startsWith('<div')) {
-            if (inParagraph) {
-                result.push('</p>');
-                inParagraph = false;
+            if (!inTable) {
+                result.push('<table>');
+                inTable = true;
             }
-            result.push(line);
+            if (isSeparatorRow) {
+                // skip separator row
+            } else {
+                const cells = line.split('|').map(c => c.trim()).filter(c => c !== '');
+                const tag = (inTable && result.filter(r => r === '<tr>').length === 0) ? 'th' : 'td';
+                result.push('<tr>');
+                cells.forEach(cell => result.push(`<${tag}>${cell}</${tag}>`));
+                result.push('</tr>');
+            }
         } else {
-            if (!inParagraph) {
-                result.push('<p>');
-                inParagraph = true;
-            } else if (inParagraph && result[result.length - 1] !== '<p>') {
-                result.push(' ');
+            if (inTable) {
+                result.push('</table>');
+                inTable = false;
             }
-            result.push(line);
+
+            if (line === '') {
+                if (inParagraph) {
+                    result.push('</p>');
+                    inParagraph = false;
+                }
+            } else if (line.startsWith('<h') || line.startsWith('<div') || line.startsWith('\x00CODEBLOCK')) {
+                if (inParagraph) {
+                    result.push('</p>');
+                    inParagraph = false;
+                }
+                result.push(line);
+            } else {
+                if (!inParagraph) {
+                    result.push('<p>');
+                    inParagraph = true;
+                } else if (inParagraph && result[result.length - 1] !== '<p>') {
+                    result.push(' ');
+                }
+                result.push(line);
+            }
         }
     }
+
+    if (inTable) result.push('</table>');
+
 
     if (inParagraph) {
         result.push('</p>');
     }
 
-    return result.join('\n');
+    let output = result.join('\n');
+
+    // Restore code blocks
+    codeBlocks.forEach((block, i) => {
+        output = output.replace(`\x00CODEBLOCK${i}\x00`, block);
+    });
+
+    return output;
 }
 
 /**
@@ -309,6 +368,57 @@ function generateHtmlPage(frontMatter, spanishHtml, englishHtml, filename) {
         em {
             font-style: italic;
         }
+
+        pre {
+            background-color: rgb(20, 20, 20);
+            border: 1px solid rgb(50, 50, 50);
+            border-radius: 6px;
+            padding: 16px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            font-size: inherit;
+            color: rgb(200, 200, 200);
+        }
+
+        code {
+            background-color: rgb(30, 30, 30);
+            border: 1px solid rgb(60, 60, 60);
+            border-radius: 3px;
+            padding: 2px 5px;
+            font-size: 14px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            color: rgb(200, 200, 200);
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+            font-size: 15px;
+        }
+
+        th, td {
+            border: 1px solid rgb(60, 60, 60);
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: rgb(20, 20, 20);
+            font-weight: 600;
+            color: rgb(0, 172, 75);
+        }
+
+        tr:nth-child(even) td {
+            background-color: rgb(10, 10, 10);
+        }
 ${languageStyles}
     </style>
     <title>${frontMatter.title} - Hugo Tárrega</title>
@@ -402,11 +512,11 @@ function buildPosts() {
         }
     });
 
-    // Sort by date (newest first) - simple string comparison works for "Month YYYY" format
+    // Sort by date descending, then by title ascending as tiebreaker
     postsMetadata.sort((a, b) => {
-        const dateA = new Date(a.date);
-        const dateB = new Date(b.date);
-        return dateB - dateA;
+        const dateDiff = new Date(b.date) - new Date(a.date);
+        if (dateDiff !== 0) return dateDiff;
+        return a.title.localeCompare(b.title);
     });
 
     // Write posts.json
