@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Want to reduce Claude Code's token consumption by 75%?" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@htarrega" />
+    <link rel="canonical" href="http://htarrega.me/posts/reducir-reutilizar-claudecodear.html" />
+    <link rel="icon" href="../favicon/favicon.png" type="image/png">
+    <link rel="apple-touch-icon" href="../favicon/apple-touch-icon.png">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../post.css">
+    <title>Reduce, reuse, claudecode better - Hugo Tárrega</title>
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li><a href="../index.html">[htarrega.me]</a></li>
+            <li><a href="../cv.html">[cv]</a></li>
+            <li><a href="../bookshelf.html">[bookshelf]</a></li>
+            <li><a href="../posts.html">[posts]</a></li>
+        </ul>
+    </nav>
+    <div id="maincontent">
+        <h1>Reduce, reuse, claudecode better</h1>
+        <div class="post-meta">April 2026</div>
+        
+        <div class="language-toggle">
+            <button class="lang-btn active" onclick="switchLanguage('es')">Español</button>
+            <button class="lang-btn" onclick="switchLanguage('en')">English</button>
+        </div>
+        
+        <div id="es-content" class="lang-section active">
+            <p>
+¿Quieres reducir el consumo de tokens de Claude Code un 75% de media? Sin tocar tu código. Sin cambiar tu workflow. Con un binario de Rust y un solo comando.
+</p>
+<p>
+Claude Code usa muchos comandos: <code>grep</code>, <code>read</code>, <code>git log</code>... Todos ellos fueron pensados para ser leídos por humanos y contienen mucha información que no es útil para un LLM. Vamos a interceptar todos los usos de estos comandos, a eliminar todo lo superfluo y a quedarnos con lo que el modelo necesita. Ahorremos tokens y ventana de contexto.
+</p>
+<p>
+<a href="https://github.com/rtk-ai/rtk" target="_blank">RTK</a> (Rust Token Killer) es un proxy CLI escrito en Rust que hace de intermediario entre tu agente de código y la terminal. Intercepta la salida de más de 100 de estos comandos y la comprime antes de que lleguen al LLM. No modifica el comportamiento del comando, solo filtra la información.
+</p>
+<p>
+Lo que RTK hace por debajo son cuatro cosas: elimina ruido (comentarios, whitespace, boilerplate), agrupa elementos similares (archivos por directorio, errores por tipo), trunca redundancia, y deduplica líneas de log repetidas. Cuando ejecutamos <code>rtk gain</code> obtenemos la siguiente tabla:
+</p>
+<img src="https://cv.htarrega.me/articles/rtk-gain.png" alt="RTK Token Savings — rtk gain mostrando 53.7% de tokens ahorrados en 51 comandos">
+<p>
+En esta sesión de ejemplo: 51 comandos, 15.6K tokens de entrada, 8.4K tokens ahorrados. Un 53.7% de ahorro sin cambiar absolutamente nada en la forma de trabajar. El comando más eficiente fue <code>git log --stat</code> con un 81.9% de reducción. Y cada comando añadió un overhead negligible de 18ms.
+</p>
+<p>
+Lo instalas con dos líneas:
+</p>
+<pre><code>curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh
+
+echo 'export PATH="$HOME/.local/bin:$PATH"' &gt;&gt; ~/.bashrc  # or ~/.zshrc
+</code></pre>
+<p>
+Y activarlo para Claude Code, otra:
+</p>
+<pre><code>rtk init -g
+</code></pre>
+<p>
+RTK no es solo para Claude Code. Soporta 10 herramientas de AI coding: Cursor, Copilot, Gemini CLI, Codex, Windsurf, Cline, y más. La instalación cambia ligeramente pero el principio es el mismo.
+</p>
+<p>
+Además de ahorrar tokens, RTK incluye una red de seguridad: cuando un comando falla, guarda la salida completa sin filtrar en un archivo local. Si Claude necesita más detalle sobre un error, lo tiene disponible sin tener que re-ejecutar nada.
+</p>
+<p>
+Overhead minusculo por comando para acabar ahorrando un 75% promedio en mas de 100 comandos.
+</p>
+        </div>
+
+        <div id="en-content" class="lang-section">
+            <p>
+Want to reduce Claude Code's token consumption by 75% on average? Without touching your code. Without changing your workflow. With a Rust binary and a single command.
+</p>
+<p>
+Claude Code uses many commands: <code>grep</code>, <code>read</code>, <code>git log</code>... All of them were designed to be read by humans and contain a lot of information that isn't useful for an LLM. We're going to intercept all uses of these commands, strip out everything superfluous, and keep only what the model needs. Let's save tokens and context window.
+</p>
+<p>
+RTK (Rust Token Killer) is a CLI proxy written in Rust that acts as a middleman between your coding agent and the terminal. It intercepts the output of over 100 of these commands and compresses it before it reaches the LLM. It doesn't modify the command's behavior — it only filters the information.
+</p>
+<p>
+What RTK does under the hood comes down to four things: it removes noise (comments, whitespace, boilerplate), groups similar elements (files by directory, errors by type), truncates redundancy, and deduplicates repeated log lines. When we run <code>rtk gain</code> we get the following table:
+</p>
+<img src="https://cv.htarrega.me/articles/rtk-gain.png" alt="RTK Token Savings — rtk gain showing 53.7% token savings across 51 commands">
+<p>
+In this example session: 51 commands, 15.6K input tokens, 8.4K tokens saved. A 53.7% savings without changing absolutely anything about the way you work. The most efficient command was <code>git log --stat</code> with an 81.9% reduction. And each command added a negligible overhead of 18ms.
+</p>
+<p>
+You install it with two lines:
+</p>
+<pre><code>curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh
+
+echo 'export PATH="$HOME/.local/bin:$PATH"' &gt;&gt; ~/.bashrc  # or ~/.zshrc
+</code></pre>
+<p>
+And activate it for Claude Code with one more:
+</p>
+<pre><code>rtk init -g
+</code></pre>
+<p>
+RTK isn't just for Claude Code. It supports 10 AI coding tools: Cursor, Copilot, Gemini CLI, Codex, Windsurf, Cline, and more. The installation varies slightly, but the principle is the same.
+</p>
+<p>
+Beyond saving tokens, RTK includes a safety net: when a command fails, it saves the complete unfiltered output to a local file. If Claude needs more detail about an error, it's available without having to re-run anything.
+</p>
+<p>
+Tiny overhead per command to end up saving 75% on average across over 100 commands.
+</p>
+        </div>
+    </div>
+
+    <script>
+        function switchLanguage(lang) {
+            document.getElementById('en-content').classList.remove('active');
+            document.getElementById('es-content').classList.remove('active');
+
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+
+            if (lang === 'es') {
+                document.getElementById('es-content').classList.add('active');
+                document.querySelectorAll('.lang-btn')[0].classList.add('active');
+            } else {
+                document.getElementById('en-content').classList.add('active');
+                document.querySelectorAll('.lang-btn')[1].classList.add('active');
+            }
+        }
+    </script>
+</body>
+
+</html>

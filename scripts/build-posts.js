@@ -42,6 +42,9 @@ function markdownToHtml(markdown) {
     // Italic
     html = html.replace(/\*(.*?)\*/gim, '<em>$1</em>');
 
+    // Images (must be before links to avoid conflict)
+    html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/gim, '<img src="$2" alt="$1">');
+
     // Links
     html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/gim, '<a href="$2" target="_blank">$1</a>');
 
@@ -85,7 +88,7 @@ function markdownToHtml(markdown) {
                     result.push('</p>');
                     inParagraph = false;
                 }
-            } else if (line.startsWith('<h') || line.startsWith('<div') || line.startsWith('\x00CODEBLOCK')) {
+            } else if (line.startsWith('<h') || line.startsWith('<div') || line.startsWith('<img') || line.startsWith('\x00CODEBLOCK')) {
                 if (inParagraph) {
                     result.push('</p>');
                     inParagraph = false;
