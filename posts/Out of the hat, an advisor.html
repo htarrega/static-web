@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="What if Sonnet could ask Opus for help?" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@htarrega" />
+    <link rel="canonical" href="http://htarrega.me/posts/Out of the hat, an advisor.html" />
+    <link rel="icon" href="../favicon/favicon.png" type="image/png">
+    <link rel="apple-touch-icon" href="../favicon/apple-touch-icon.png">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../post.css">
+    <title>Out of the hat, an advisor - Hugo Tárrega</title>
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li><a href="../index.html">[htarrega.me]</a></li>
+            <li><a href="../cv.html">[cv]</a></li>
+            <li><a href="../bookshelf.html">[bookshelf]</a></li>
+            <li><a href="../posts.html">[posts]</a></li>
+        </ul>
+    </nav>
+    <div id="maincontent">
+        <h1>Out of the hat, an advisor</h1>
+        <div class="post-meta">April 2026</div>
+        
+        <div class="language-toggle">
+            <button class="lang-btn active" onclick="switchLanguage('es')">Español</button>
+            <button class="lang-btn" onclick="switchLanguage('en')">English</button>
+        </div>
+        
+        <div id="es-content" class="lang-section active">
+            <p>
+Un día mas vengo a ayudar a los pobres en tokens (como yo). ¿Y si Sonnet pudiera pedirle ayuda a Opus solo cuando hace falta, en vez de cobrarte Opus todo el rato? Con una línea en tu request. Sin sub-agentes, sin orquestación, sin mover contexto a mano generando plannings.
+</p>
+<p>
+Para tareas sencillas Sonnet va sobrado, pero cuando el problema se complica se le hace cuesta arriba. La solución obvia es tirar de Opus, pero <a href="https://www.anthropic.com/claude/opus" target="_blank">Opus cuesta <code>$5/$25</code> por millón de tokens y Sonnet <code>$3/$15</code></a>. Es decir, precio variable segun si es input o output y Opus costando bastante más. Viendo esta diferencia, no siempre tenemos claro cual usar y podemos malgastar nuestros preciados tokens.
+</p>
+<p>
+La <a href="https://claude.com/blog/the-advisor-strategy" target="_blank">advisor tool</a> es la solución de Anthropic a este dilema. Pones Sonnet como ejecutor y le das acceso a una <code>advisor tool</code> respaldada por Opus. Sonnet decide él mismo cuándo llamar al advisor: antes de tomar una decisión de diseño, antes de escribir código crítico o cuando ve que está perdido. Cuando lo llama, todo el historial de conversación se reenvía automáticamente a Opus, que devuelve su análisis. No hay handoff manual.
+</p>
+<p>
+Lo más interesante son los números. En los benchmarks de Anthropic, Sonnet + Opus advisor mejora en BrowseComp2 y Terminal-Bench 2.0 <strong>y cuesta menos por tarea que Sonnet solo</strong>. Haiku con Opus de advisor saca 41.2% en BrowseComp — más del doble que el 19.7% de Haiku solo — a un 85% menos por tarea que Sonnet.
+</p>
+<p>
+Si usas Claude Code:
+</p>
+<pre><code>/advisor
+</code></pre>
+<p>
+Disponible desde v2.1.101. Eliges modelo advisor (Opus), y a partir de ahí Sonnet lo invoca cuando le hace falta.
+</p>
+<p>
+Si lo usas vía API, tres cosas: el header <code>anthropic-beta: advisor-tool-2026-03-01</code>, el tool <code>advisor_20260301</code> en tu array de tools, y el modelo advisor dentro de la definición del tool (no en el <code>model</code> principal). Añade también <code>max_uses</code> para acotar el gasto por request:
+</p>
+<pre><code>curl https://api.anthropic.com/v1/messages \
+  --header "x-api-key: $ANTHROPIC_API_KEY" \
+  --header "anthropic-version: 2023-06-01" \
+  --header "anthropic-beta: advisor-tool-2026-03-01" \
+  --header "content-type: application/json" \
+  --data '{
+    "model": "claude-sonnet-4-6",
+    "max_tokens": 4096,
+    "tools": [{
+      "type": "advisor_20260301",
+      "name": "advisor",
+      "model": "claude-opus-4-7",
+      "max_uses": 3
+    }],
+    "messages": [{"role": "user", "content": "..."}]
+  }'
+</code></pre>
+<p>
+Un caso real para que se entienda mejor el caso de uso. Le pides a Sonnet: <em>"añade un toggle de idioma ES/EN al post <code>prozbul.html</code>, igual que el que ya existe en <code>defuddle-yourself.html</code>"</em>. Sonnet abre el archivo, ve el patrón (<code>&lt;div class="language-toggle"&gt;</code>, una <code>switchLanguage()</code> inline y dos <code>&lt;div class="lang-section"&gt;</code>), y se lanza a copiar-pegar la estructura. Plan razonable. Pero antes de escribir ni una línea, llama al advisor.
+</p>
+<p>
+Opus recibe el historial completo y devuelve tres cosas que Sonnet había pasado por alto:
+</p>
+<p>
+1. La función <code>switchLanguage()</code> está inline en <code>defuddle-yourself.html</code>. Si la copias tal cual en cada post acabas con N copias divergentes. Mejor extraerla a <code>lang-toggle.js</code> y enlazarla con un <code>&lt;script src="../lang-toggle.js"&gt;</code> en el <code>&lt;head&gt;</code>.
+ 
+2. El <code>onclick="switchLanguage('es')"</code> rompe accesibilidad por teclado y choca con cualquier CSP estricto. Mejor <code>data-lang="es"</code> y un <code>addEventListener</code> delegado en el contenedor.
+ 
+3. El idioma elegido no persiste entre páginas. Si el lector cambia a EN en un post y navega a otro, vuelve a ES. Dos líneas de <code>localStorage</code> en el módulo extraído lo arreglan para todos los posts a la vez.
+</p>
+<p>
+Eso es una review de senior en mitad del flow, sin que tú tengas que pararlo. Sonnet aplica los tres puntos y entrega un resultado que de otro modo habría necesitado una segunda pasada tuya.
+</p>
+<table>
+<tr>
+<th>Setup</th>
+<th>Input</th>
+<th>Output</th>
+<th>Inteligencia</th>
+</tr>
+<tr>
+<td>Sonnet solo</td>
+<td>$3</td>
+<td>$15</td>
+<td>Baseline</td>
+</tr>
+<tr>
+<td>Opus solo</td>
+<td>$5</td>
+<td>$25</td>
+<td>Máxima</td>
+</tr>
+<tr>
+<td>Sonnet + Opus advisor</td>
+<td>$3</td>
+<td>$15</td>
+<td>SemiOpus</td>
+</tr>
+</table>
+<p>
+Deleguemos cuando los modelos necesitan o no sacarse de la chistera un advisor.
+</p>
+        </div>
+
+        <div id="en-content" class="lang-section">
+            <p>
+Another day, another attempt to help the token-poor (like me). What if Sonnet could ask Opus for help only when it needs it, instead of charging you Opus-level all the time? With one line in your request. No sub-agents, no orchestration, no moving context around by hand building plans.
+</p>
+<p>
+For simple tasks Sonnet is plenty, but when things get hairy it struggles. The obvious fix is to reach for Opus, but <a href="https://www.anthropic.com/claude/opus" target="_blank">Opus costs <code>$5/$25</code> per million tokens and Sonnet <code>$3/$15</code></a>. That is, the price depends on whether it's input or output. Given this gap, it's not always clear which one to use and we can burn through our precious tokens.
+</p>
+<p>
+The <a href="https://claude.com/blog/the-advisor-strategy" target="_blank">advisor tool</a> is Anthropic's answer to this dilemma. You put Sonnet as the executor and give it access to an <code>advisor tool</code> backed by Opus. Sonnet decides on its own when to call the advisor: before a big decision, before writing critical code, when it's lost. When it calls, the entire conversation history is forwarded automatically to Opus, which returns its take. No manual handoff. Not a sub-agent.
+</p>
+<p>
+The interesting part is the numbers. In Anthropic's benchmarks, Sonnet + Opus advisor improves on BrowseComp2 and Terminal-Bench 2.0 <strong>and costs less per task than Sonnet alone</strong>. Haiku with Opus as advisor scores 41.2% on BrowseComp — more than double Haiku's solo 19.7% — at 85% less per task than Sonnet. Sounds like magic but isn't: the tool only fires when the executor asks for it, so you pay Opus in bursts and Sonnet/Haiku the rest of the time.
+</p>
+<p>
+If you use Claude Code, you enable it with one command:
+</p>
+<pre><code>/advisor
+</code></pre>
+<p>
+Available from v2.1.101. Pick an advisor model (Opus), and from there Sonnet calls it when it needs to. Nothing else to configure.
+</p>
+<p>
+If you use it via API, three things: the <code>anthropic-beta: advisor-tool-2026-03-01</code> header, the <code>advisor_20260301</code> tool in your tools array, and the advisor model inside the tool definition (not in the main <code>model</code> field). Add <code>max_uses</code> too to cap spend per request:
+</p>
+<pre><code>curl https://api.anthropic.com/v1/messages \
+  --header "x-api-key: $ANTHROPIC_API_KEY" \
+  --header "anthropic-version: 2023-06-01" \
+  --header "anthropic-beta: advisor-tool-2026-03-01" \
+  --header "content-type: application/json" \
+  --data '{
+    "model": "claude-sonnet-4-6",
+    "max_tokens": 4096,
+    "tools": [{
+      "type": "advisor_20260301",
+      "name": "advisor",
+      "model": "claude-opus-4-7",
+      "max_uses": 3
+    }],
+    "messages": [{"role": "user", "content": "..."}]
+  }'
+</code></pre>
+<p>
+A real case to better grasp the use case. You ask Sonnet: <em>"add an ES/EN language toggle to <code>prozbul.html</code>, just like the one already in <code>defuddle-yourself.html</code>"</em>. Sonnet opens the file, sees the pattern (<code>&lt;div class="language-toggle"&gt;</code>, an inline <code>switchLanguage()</code>, two <code>&lt;div class="lang-section"&gt;</code>), and goes for a copy-paste of the structure. Reasonable plan. But before writing a single line, it calls the advisor.
+</p>
+<p>
+Opus receives the full history and returns three things Sonnet had missed:
+</p>
+<p>
+1. The <code>switchLanguage()</code> function is inlined in <code>defuddle-yourself.html</code>. Copy it as-is into every post and you'll end up with N divergent copies. Better extract it to <code>lang-toggle.js</code> and wire it up with a <code>&lt;script src="../lang-toggle.js"&gt;</code> in the <code>&lt;head&gt;</code>.
+ 
+2. The <code>onclick="switchLanguage('es')"</code> breaks keyboard accessibility and clashes with any strict CSP. Use <code>data-lang="es"</code> and a delegated <code>addEventListener</code> on the container instead.
+ 
+3. The chosen language doesn't persist across pages. If a reader switches to EN in one post and navigates away, the next post resets to ES. Two lines of <code>localStorage</code> in the extracted module fix it for every post at once.
+</p>
+<p>
+That's a senior-level review in the middle of the flow, without you having to stop anything. Sonnet applies the three fixes and delivers a change that would've otherwise needed a second pass from you.
+</p>
+<table>
+<tr>
+<th>Setup</th>
+<th>Input</th>
+<th>Output</th>
+<th>Intelligence</th>
+</tr>
+<tr>
+<td>Sonnet solo</td>
+<td>$3</td>
+<td>$15</td>
+<td>Baseline</td>
+</tr>
+<tr>
+<td>Opus solo</td>
+<td>$5</td>
+<td>$25</td>
+<td>Max</td>
+</tr>
+<tr>
+<td>Sonnet + Opus advisor</td>
+<td>$3</td>
+<td>$15</td>
+<td>SemiOpus</td>
+</tr>
+</table>
+<p>
+Let’s delegate when the models need to—or don’t need to—pull an advisor out of a hat.
+</p>
+        </div>
+    </div>
+
+    <script>
+        function switchLanguage(lang) {
+            document.getElementById('en-content').classList.remove('active');
+            document.getElementById('es-content').classList.remove('active');
+
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+
+            if (lang === 'es') {
+                document.getElementById('es-content').classList.add('active');
+                document.querySelectorAll('.lang-btn')[0].classList.add('active');
+            } else {
+                document.getElementById('en-content').classList.add('active');
+                document.querySelectorAll('.lang-btn')[1].classList.add('active');
+            }
+        }
+    </script>
+</body>
+
+</html>
