@@ -296,11 +296,18 @@
             gridView.innerHTML = '';
             listView.innerHTML = '';
 
+            // Eager-load only the covers actually above the fold. Order is
+            // random, but 'eager' is positional (top grid slots), so we scale
+            // it to the responsive column count (~first two rows) instead of a
+            // fixed number — avoids high-priority fetching off-screen covers on
+            // mobile's single column, where bandwidth is tightest.
+            const columns = window.matchMedia('(min-width: 1024px)').matches ? 2
+                : window.matchMedia('(min-width: 768px)').matches ? 4 : 1;
+            const eagerCount = columns * 2;
+
             const sortedBooks = sortBooks(books);
             sortedBooks.forEach((book, index) => {
-                // First covers are above-the-fold: load them eagerly with high
-                // priority so they don't sit behind lazy-loading (helps LCP).
-                const eager = index < 6;
+                const eager = index < eagerCount;
                 const loading = eager ? 'eager' : 'lazy';
                 const priority = eager ? 'high' : 'auto';
                 const gridItem = document.createElement('div');
