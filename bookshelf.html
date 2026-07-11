@@ -297,11 +297,16 @@
             listView.innerHTML = '';
 
             const sortedBooks = sortBooks(books);
-            sortedBooks.forEach(book => {
+            sortedBooks.forEach((book, index) => {
+                // First covers are above-the-fold: load them eagerly with high
+                // priority so they don't sit behind lazy-loading (helps LCP).
+                const eager = index < 6;
+                const loading = eager ? 'eager' : 'lazy';
+                const priority = eager ? 'high' : 'auto';
                 const gridItem = document.createElement('div');
                 gridItem.className = 'book-item';
                 gridItem.innerHTML = `
-                    <img src="${book.cover}" alt="${book.title}" class="book-cover" loading="lazy" data-title="${book.title.replace(/"/g, '&quot;')}" onerror="showFallback(this)">
+                    <img src="${book.cover}" alt="${book.title}" class="book-cover" loading="${loading}" fetchpriority="${priority}" decoding="async" data-title="${book.title.replace(/"/g, '&quot;')}" onerror="showFallback(this)">
                     <div class="book-info">
                         <div class="book-title">${book.title}</div>
                         <div class="book-author">${book.author}</div>
