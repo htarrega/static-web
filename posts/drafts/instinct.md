@@ -12,7 +12,7 @@ Y ahí llega nuestra ansiada nivelación. El instinto se rehabilita, no por ser 
 
 Nivelar no es rebajar a ambos a la nada; es reconocer que ninguno era el fantasma que creíamos, y que los dos son la misma cosa. El instinto no es un intruso animal dentro de ti: es tan constitutivo de quién eres como tu deliberación más pausada, y carga millones de años de cálculo afinado. Y la razón tampoco pierde valor al bajar de su pedestal metafísico. Deja de ser un milagro incausado para volverse algo mejor: un proceso real, tejido en carne, una acumulación de pesos neuronales. Abracemos el instinto, o nuestra razón lo hará por nosotros.
 
-![San Jerónimo penitente, golpeándose el pecho con una piedra en el desierto](https://cv.htarrega.me/articles/saint-jerome.webp)
+![San Jerónimo penitente sobre un fondo de unos y ceros](https://cv.htarrega.me/articles/saint-binary.webp)
 
 ## [ENG]
 
@@ -24,4 +24,4 @@ And there comes the levelling we were longing for. Instinct is rehabilitated, no
 
 Levelling is not dragging both down to nothing; it is recognising that neither was the ghost we believed it to be, and that the two are one and the same thing. Instinct is not an animal intruder inside you: it is as constitutive of who you are as your most unhurried deliberation, and it carries millions of years of finely tuned computation. Nor does reason lose any value by stepping down from its metaphysical pedestal. It stops being an uncaused miracle to become something better: a real process, woven in flesh, an accumulation of neural weights. Let us embrace instinct, or our reason will do it for us.
 
-![Saint Jerome penitent, beating his chest with a stone in the desert](https://cv.htarrega.me/articles/saint-jerome.webp)
+![Saint Jerome penitent against a background of ones and zeros](https://cv.htarrega.me/articles/saint-binary.webp)
