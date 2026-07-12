@@ -43,7 +43,15 @@ function markdownToHtml(markdown) {
     html = html.replace(/\*(.*?)\*/gim, '<em>$1</em>');
 
     // Images (must be before links to avoid conflict)
-    html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/gim, '<img src="$2" alt="$1">');
+    // Obsidian-style `![alt|300](url)` sets the display width, letting us ship a
+    // higher-resolution file than the box it renders in (sharp on retina screens).
+    html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/gim, (match, alt, src) => {
+        const sized = alt.match(/^(.*)\|(\d+)$/);
+        if (sized) {
+            return `<img src="${src}" alt="${sized[1]}" width="${sized[2]}">`;
+        }
+        return `<img src="${src}" alt="${alt}">`;
+    });
 
     // Links
     html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/gim, '<a href="$2" target="_blank">$1</a>');
