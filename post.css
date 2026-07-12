@@ -56,6 +56,14 @@ em {
     font-style: italic;
 }
 
+/* Images */
+img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 24px auto;
+}
+
 /* Code blocks */
 pre {
     background-color: rgb(20, 20, 20);
