@@ -36,6 +36,28 @@
             max-width: 650px;
         }
 
+        /* Living field: fixed canvas behind all the content */
+        #bg {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            display: block;
+            pointer-events: none;
+        }
+
+        /* Home-only: integrate the nav into the field (no solid black bar) */
+        nav {
+            background: linear-gradient(to bottom,
+                rgba(0, 0, 0, 0.60) 0%,
+                rgba(0, 0, 0, 0.32) 55%,
+                rgba(0, 0, 0, 0.00) 100%);
+            -webkit-backdrop-filter: blur(3px);
+            backdrop-filter: blur(3px);
+            padding: 10px 0 26px;
+        }
+
         #maincontent {
             max-width: 42em;
             margin: 15px auto;
@@ -68,6 +90,7 @@
 </head>
 
 <body>
+    <canvas id="bg" aria-hidden="true"></canvas>
     <nav>
         <ul>
             <li><a href="index.html">[htarrega.me]</a></li>
@@ -104,6 +127,165 @@
                 style="max-width: 100%; height: auto; opacity: 0.6; filter: invert(1); mix-blend-mode: screen;">
         </div>
     </div>
+
+    <!-- ============================================================== -->
+    <!--  LIVING FIELD "Dust" — WebGL2, no dependencies, no build step   -->
+    <!--  FBM noise with domain warping. Color pinned to the accent.     -->
+    <!--  Respects prefers-reduced-motion; degrades gracefully w/o WebGL2.-->
+    <!-- ============================================================== -->
+    <script>
+        (function () {
+            const canvas = document.getElementById('bg');
+            const gl = canvas.getContext('webgl2', { antialias: false, alpha: false });
+            if (!gl) { canvas.style.display = 'none'; return; }   // fallback: CSS black
+
+            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            const VERT = `#version 300 es
+            layout(location=0) in vec2 p;
+            void main(){ gl_Position = vec4(p, 0.0, 1.0); }`;
+
+            const FRAG = `#version 300 es
+            precision highp float;
+            uniform vec2  uRes;
+            uniform float uTime;
+            uniform float uImgTop;  // uv.y of the image's top edge (from JS, scroll-aware)
+            uniform float uTextTop; // uv.y of the title's bottom edge (from JS, scroll-aware)
+            out vec4 frag;
+
+            vec3 hsv2rgb(vec3 c){
+              vec4 K = vec4(1.0, 2.0/3.0, 1.0/3.0, 3.0);
+              vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+              return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+            }
+            float hash(vec2 p){ p = fract(p*vec2(123.34,345.45)); p += dot(p,p+34.345); return fract(p.x*p.y); }
+            float vnoise(vec2 p){
+              vec2 i=floor(p), f=fract(p); vec2 u=f*f*(3.0-2.0*f);
+              float a=hash(i), b=hash(i+vec2(1,0)), c=hash(i+vec2(0,1)), d=hash(i+vec2(1,1));
+              return mix(mix(a,b,u.x), mix(c,d,u.x), u.y);
+            }
+            float fbm(vec2 p){ float v=0.0,a=0.5; mat2 m=mat2(1.6,1.2,-1.2,1.6); for(int i=0;i<5;i++){ v+=a*vnoise(p); p=m*p; a*=0.5; } return v; }
+
+            // --- Fixed settings ---
+            const float HUE     = 146.0/360.0;  // accent green (rgb 0,172,75)
+            const float SPEED   = 0.16;   // flow velocity
+            const float SCALE   = 9.0;    // wave density
+            const float QUIET   = 0.10;   // half-width of the quieted central text column
+            const float WOBBLE  = 0.06;   // organic waviness of the quiet-column edge
+            const float WARP    = 1.95;
+            const float VEIN    = 0.49;
+            const float GLOW    = 1.35;
+            const float BREATHE = 0.38;
+
+            void main(){
+              vec2 uv  = gl_FragCoord.xy / uRes.xy;
+              vec2 asp = vec2(uRes.x/uRes.y, 1.0);
+
+              vec3 deep = vec3(0.020, 0.030, 0.045);
+              vec3 mid  = hsv2rgb(vec3(HUE, 0.45, 0.15));
+              vec3 glow = hsv2rgb(vec3(HUE, 0.75, 0.46));
+
+              // Spatial mask: dim only the centered PARAGRAPH column; keep dust at the title (top),
+              // the image (bottom) and the edges. uImgTop / uTextTop come from JS (scroll-aware),
+              // so the quiet band tracks the real text. uv.y: 0 = bottom, 1 = top.
+              float cx        = abs(uv.x - 0.5);
+              float wob       = (vnoise(vec2(uv.y * 6.0, uTime * 0.05)) - 0.5) * WOBBLE;  // organic wavy edge
+              float horiz     = smoothstep(QUIET, QUIET + 0.22, cx + wob);       // 0 center .. 1 edges
+              float aboveImg  = smoothstep(uImgTop - 0.06, uImgTop + 0.06, uv.y);        // 1 above image
+              float belowTtl  = 1.0 - smoothstep(uTextTop - 0.06, uTextTop + 0.06, uv.y);// 1 below the title
+              float paraZone  = aboveImg * belowTtl * (1.0 - horiz);             // centered paragraphs
+              float titleZone = (1.0 - belowTtl) * (1.0 - horiz);               // centered title area (top)
+              float mask      = mix(1.0, 0.18, paraZone);                        // strong dim behind paragraphs
+              mask = min(mask, mix(1.0, 0.70, titleZone));                       // a little dust behind the title
+
+              vec2 p  = (uv-0.5)*asp*SCALE;
+              float t = uTime*SPEED;
+
+              vec2 q = vec2(fbm(p + vec2(0.0, t)), fbm(p + vec2(5.2, -t)));
+              vec2 r = vec2(fbm(p + 1.8*q + vec2(1.7,9.2) + 0.15*t),
+                            fbm(p + 1.8*q + vec2(8.3,2.8) - 0.12*t));
+              float f = clamp(fbm(p + WARP*r), 0.0, 1.0);
+
+              vec3 col = mix(deep, mid, smoothstep(0.15, 0.85, f) * mask);
+
+              float vein    = smoothstep(VEIN, VEIN+0.48, f);
+              float breathe = (1.0 - BREATHE) + BREATHE*(0.5 + 0.5*sin(uTime*0.32));
+              col += glow * GLOW * vein * breathe * mask;
+
+              float vig = smoothstep(2.0, 0.35, length((uv-0.5)*asp));
+              col *= mix(0.86, 1.0, vig);
+              col = max(col, 0.0);
+              col += (hash(gl_FragCoord.xy + fract(uTime)) - 0.5)/255.0;
+
+              frag = vec4(col, 1.0);
+            }`;
+
+            function compile(type, src) {
+                const s = gl.createShader(type);
+                gl.shaderSource(s, src); gl.compileShader(s);
+                if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) console.error(gl.getShaderInfoLog(s));
+                return s;
+            }
+            const prog = gl.createProgram();
+            gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT));
+            gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG));
+            gl.linkProgram(prog);
+            gl.useProgram(prog);
+
+            const vao = gl.createVertexArray(); gl.bindVertexArray(vao);
+            const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+            gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+            const uRes = gl.getUniformLocation(prog, 'uRes');
+            const uTime = gl.getUniformLocation(prog, 'uTime');
+            const uImgTop = gl.getUniformLocation(prog, 'uImgTop');
+            const uTextTop = gl.getUniformLocation(prog, 'uTextTop');
+
+            // Scroll-aware boundaries (uv.y) so the quiet band tracks the real text:
+            // dust stays at the title (above uTextTop) and the image (below uImgTop).
+            const heroImg = document.querySelector('#maincontent img');
+            const heroTitle = document.querySelector('#maincontent h2');
+            const imgTopUv = () => 1.0 - (heroImg.getBoundingClientRect().top / window.innerHeight);
+            const titleBotUv = () => 1.0 - (heroTitle.getBoundingClientRect().bottom / window.innerHeight);
+
+            // Render at reduced resolution (diffuse smoke: unnoticeable and runs smooth)
+            let W = 1, Hh = 1; const SCALE_RES = 0.6;
+            function resize() {
+                W = Math.floor(window.innerWidth * SCALE_RES);
+                Hh = Math.floor(window.innerHeight * SCALE_RES);
+                canvas.width = W; canvas.height = Hh;
+                gl.viewport(0, 0, W, Hh);
+                gl.uniform2f(uRes, W, Hh);
+            }
+            window.addEventListener('resize', () => { resize(); if (reduceMotion) render(0); });
+            resize();
+
+            function render(now) {
+                gl.uniform1f(uTime, now * 0.001);
+                gl.uniform1f(uImgTop, imgTopUv());
+                gl.uniform1f(uTextTop, titleBotUv());
+                gl.drawArrays(gl.TRIANGLES, 0, 3);
+            }
+
+            // Reduced-motion mode: a single static frame, no animation
+            if (reduceMotion) { render(12000); return; }
+
+            // Cap at ~30 fps + pause when the tab isn't visible
+            const FPS = 30, FRAME = 1000 / FPS; let last = 0, running = true;
+            function loop(now) {
+                if (!running) return;
+                requestAnimationFrame(loop);
+                if (now - last < FRAME) return;
+                last = now;
+                render(now);
+            }
+            requestAnimationFrame(loop);
+            document.addEventListener('visibilitychange', () => {
+                running = !document.hidden; if (running) { last = 0; requestAnimationFrame(loop); }
+            });
+        })();
+    </script>
 </body>
 
 </html>
