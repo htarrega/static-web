@@ -257,7 +257,16 @@
                 gl.viewport(0, 0, W, Hh);
                 gl.uniform2f(uRes, W, Hh);
             }
-            window.addEventListener('resize', () => { resize(); if (reduceMotion) render(0); });
+            // Only react to width changes (rotation / real resize). Mobile scroll shows/hides the
+            // URL bar, which changes innerHeight and would reallocate the canvas buffer each time —
+            // that reallocation is the flicker. Height-only changes are ignored (CSS stretches).
+            let lastW = window.innerWidth;
+            window.addEventListener('resize', () => {
+                if (window.innerWidth === lastW) return;
+                lastW = window.innerWidth;
+                resize();
+                if (reduceMotion) render(0);
+            });
             resize();
 
             function render(now) {
