@@ -1,8 +1,8 @@
 | Field   | Content                                                  |
 | ------- | -------------------------------------------------------- |
-| Title   | Rhythm and Ursula                                        |
+| Title   | Beat, rhythm and Ursula                                  |
 | Date    | July 2026                                                |
-| Excerpt | Un ejercicio de ritmo a partir de Steering the Craft (1) |
+| Excerpt | A rhythm exercise from Steering the Craft (1)            |
 ***
 
 **El ejercicio**
