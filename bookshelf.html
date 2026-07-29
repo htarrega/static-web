@@ -1581,6 +1581,13 @@
 
             /* --- input ---------------------------------------------------- */
 
+            // Pointer capture retargets events to the stage, so hit-test by
+            // coordinates instead of reading e.target.
+            function bookAt(x, y) {
+                var under = document.elementFromPoint(x, y);
+                return under && under.closest ? under.closest('.book') : null;
+            }
+
             function nearestTo(offset) {
                 var best = 0;
                 var bestD = Infinity;
@@ -1596,6 +1603,13 @@
             var startX = 0;
             var startOffset = 0;
             var moved = 0;
+            // Tap bookkeeping, so a double click can be told from two picks.
+            var volumeTaps = 0;     // taps in the current run, 0 if it missed
+            var volumeTapAt = 0;
+            var volumeTapX = 0;
+            var volumeTapY = 0;
+            var TAP_PAIR = 600;     // ms; over any system's double-click speed
+            var TAP_SLOP = 32;      // px; farther apart is two separate picks
 
             stage.addEventListener('pointerdown', function (e) {
                 if (focused || e.button !== 0) return;
@@ -1624,24 +1638,68 @@
                 }
             });
 
+            // A finger or a stylus, which touch the jacket itself rather than
+            // pointing at it from a distance.
+            function isDirect(e) {
+                return e.pointerType === 'touch' || e.pointerType === 'pen';
+            }
+
+            // The follow-up click of a double click: soon after a tap that hit
+            // a jacket, and close enough to it that it is the same gesture
+            // rather than an impatient pick of another volume.
+            function isSecondTap(e) {
+                return volumeTaps > 0 &&
+                    e.timeStamp - volumeTapAt < TAP_PAIR &&
+                    Math.abs(e.clientX - volumeTapX) < TAP_SLOP &&
+                    Math.abs(e.clientY - volumeTapY) < TAP_SLOP;
+            }
+
             function endDrag(e) {
+                if (focused) {
+                    // Tapping the enlarged volume puts it back. The details
+                    // panel is a sibling of the stage, so tapping it never
+                    // reaches here.
+                    if (e && e.type === 'pointerup' && e.button === 0) setFocus(false);
+                    return;
+                }
                 if (!dragging || (e && e.pointerId !== pointerId)) return;
                 dragging = false;
                 stage.classList.remove('is-dragging');
                 try { stage.releasePointerCapture(pointerId); } catch (err) { /* already gone */ }
                 paint();
 
-                // A tap, not a drag: open whatever was under the pointer.
-                // Pointer capture retargets the event to the stage, so hit-test
-                // by coordinates instead of reading e.target.
-                if (moved < 6 && e) {
-                    var under = document.elementFromPoint(e.clientX, e.clientY);
-                    var hit = under && under.closest ? under.closest('.book') : null;
-                    if (hit) {
-                        var i = Number(hit.dataset.index);
-                        if (i === active) setFocus(true);
-                        else select(i);
+                // A tap, not a drag: bring whatever was under the pointer to
+                // the front. With a mouse, opening it takes a second click.
+                if (moved < 6 && e && e.type === 'pointerup') {
+                    if (isSecondTap(e)) {
+                        // The rail is still sliding the volume picked by the
+                        // first click into place. Hit-testing again here would
+                        // find whatever drifted under the pointer meanwhile and
+                        // send the shelf somewhere the gesture never aimed.
+                        volumeTaps++;
+                    } else {
+                        var hit = bookAt(e.clientX, e.clientY);
+                        volumeTaps = hit ? 1 : 0;
+                        if (hit) {
+                            var i = Number(hit.dataset.index);
+                            // A finger has no double click and no hover to
+                            // preview with, so tapping the volume that is
+                            // already centred opens it outright.
+                            if (i === active && isDirect(e)) volumeTaps = 2;
+                            else select(i);
+                        }
                     }
+                    if (volumeTaps >= 2) {
+                        volumeTaps = 0;
+                        setFocus(true);
+                    }
+                    volumeTapAt = e.timeStamp;
+                    volumeTapX = e.clientX;
+                    volumeTapY = e.clientY;
+                } else {
+                    // A drag, or a pointer lost mid-gesture: neither is a tap,
+                    // and neither may pair with the next one into a double click.
+                    volumeTaps = 0;
                 }
             }
 
@@ -1686,11 +1744,10 @@
             document.getElementById('inspect').addEventListener('click', function () { setFocus(true); });
             document.getElementById('focus-exit').addEventListener('click', function () { setFocus(false); });
 
-            // Tapping the enlarged volume puts it back. The details panel is a
-            // sibling of the stage, so clicking it never reaches this.
-            stage.addEventListener('click', function () {
-                if (focused) setFocus(false);
-            });
+            // Opening and closing a volume both ride on pointerup, in endDrag.
+            // The stage captures the pointer and turns off touch-action, so the
+            // click and dblclick a mouse would synthesize are not dependable
+            // here — and a finger may not synthesize them at all.
 
             var resizeTimer;
             window.addEventListener('resize', function () {
