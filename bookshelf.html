@@ -1122,12 +1122,14 @@
 
             .book-details h2 {
                 max-width: 90%;
-                font-size: clamp(35px, 10vw, 48px);
+                /* A long title ran to three lines at this size and pushed the
+                   metadata off the sheet. */
+                font-size: clamp(23px, 6.5vw, 30px);
             }
 
             .book-details__author {
-                margin-top: 10px;
-                font-size: 17px;
+                margin-top: 8px;
+                font-size: 16px;
             }
 
             .book-details__description {
@@ -1137,6 +1139,13 @@
 
             .book-details dl {
                 margin-top: 23px;
+            }
+
+            /* The sheet is short; the adjacent volumes are the first thing to
+               go. Desktop keeps them. */
+            .book-details dl .meta-aside,
+            .book-details dl.aside-only {
+                display: none;
             }
 
             .official-link {
@@ -1534,16 +1543,20 @@
                 // Only real data from books.json is rendered. The optional
                 // fields below are picked up automatically if entries ever
                 // grow a description / year / publisher / link.
+                // The neighbours are marked rather than omitted: the mobile
+                // sheet hides them in CSS, so rotating the phone is enough to
+                // get them back without re-rendering.
                 var meta = '';
-                function row(term, value) {
+                function row(term, value, cls) {
                     if (!value) return;
-                    meta += '<div><dt>' + esc(term) + '</dt><dd>' + esc(value) + '</dd></div>';
+                    meta += '<div' + (cls ? ' class="' + cls + '"' : '') + '><dt>' +
+                        esc(term) + '</dt><dd>' + esc(value) + '</dd></div>';
                 }
-                row('Before it', before ? before.title : '—');
-                row('After it', after ? after.title : '—');
+                row('Before it', before ? before.title : '—', 'meta-aside');
+                row('After it', after ? after.title : '—', 'meta-aside');
+                row('Pages', book.pages);
                 row('First published', book.year);
                 row('Publisher', book.publisher);
-                row('Pages', book.pages);
 
                 detailsEl.innerHTML =
                     '<div class="book-details__inner">' +
@@ -1556,7 +1569,8 @@
                             '<h2>' + esc(book.title) + '</h2>' +
                             '<p class="book-details__author">' + esc(book.author || 'Anonymous') + '</p>' +
                             (book.description ? '<p class="book-details__description">' + esc(book.description) + '</p>' : '') +
-                            '<dl>' + meta + '</dl>' +
+                            (meta ? '<dl' + (book.pages ? '' : ' class="aside-only"') +
+                                '>' + meta + '</dl>' : '') +
                             (book.link ? '<a class="official-link" href="' + esc(book.link) +
                                 '" target="_blank" rel="noopener">[more about this book]</a>' : '') +
                         '</div>' +
