@@ -961,6 +961,18 @@
             opacity: 0;
         }
 
+        /* Only reachable where the details panel is hidden — see the mobile
+           breakpoint. On desktop the panel's own back button does this job. */
+        .focus-exit {
+            position: absolute;
+            z-index: 23;
+            display: none;
+            background: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: var(--ink);
+        }
+
         /* --- status / loading --------------------------------------------- */
 
         .loading-screen {
@@ -993,10 +1005,6 @@
                 width: min(570px, 48vw);
             }
 
-            .book-details__inner {
-                padding-left: 60px;
-                padding-right: 34px;
-            }
 
             .is-focused .book.is-active {
                 transform: translate3d(calc(min(570px, 48vw) / -2), -30px, calc(var(--z) + 430px)) rotateY(-90deg);
@@ -1040,26 +1048,17 @@
                 margin-top: 18px;
             }
 
+            /* Touch browses by dragging; the arrows were two more targets
+               competing for the bottom of the screen. */
             .shelf-arrow {
-                width: 42px;
-                height: 42px;
-                top: auto;
-                bottom: 60px;
-            }
-
-            .shelf-arrow--left {
-                left: 18px;
-            }
-
-            .shelf-arrow--right {
-                right: 18px;
+                display: none;
             }
 
             .shelf-index {
                 display: block;
-                bottom: 68px;
-                left: 72px;
-                right: 72px;
+                bottom: 44px;
+                left: 24px;
+                right: 24px;
             }
 
             .shelf-index__ticks,
@@ -1081,25 +1080,35 @@
                 display: none;
             }
 
-            /* The details panel becomes a sheet that rises from the bottom. */
+            /* No reading panel on a phone: opening a volume shows the jacket
+               and nothing else. The sheet took half the screen to print what
+               the cover already says. */
             .book-details {
-                top: auto;
-                bottom: 0;
-                width: 100%;
-                height: min(49dvh, 500px);
+                display: none;
+            }
+
+            .focus-exit {
+                display: block;
+                bottom: 34px;
+                left: 50%;
                 opacity: 0;
-                transform: translateY(100%);
+                pointer-events: none;
+                transform: translateX(-50%);
+                transition: opacity .3s;
             }
 
-            .book-details::before {
-                top: -55px;
-                background: linear-gradient(180deg, #00000000, #000000f0 54px, var(--paper) 55px), var(--paper);
-            }
-
-            .is-focused .book-details {
+            .is-focused .focus-exit {
                 opacity: 1;
-                transform: translateY(0);
+                pointer-events: auto;
             }
+
+            /* Nothing competes for the screen now, so the jacket can come
+               most of the way forward. */
+            .is-focused .book.is-active {
+                transform: translate3d(0, 13vh, calc(var(--z) + 780px)) rotateY(-90deg);
+            }
+
+
 
             .book-details__inner {
                 padding: 9px 20px max(14px, env(safe-area-inset-bottom));
@@ -1107,56 +1116,17 @@
                 border-left: 0;
             }
 
-            .book-details__position span:first-child::after {
-                width: 20px;
-            }
 
-            .book-details__copy {
-                align-self: auto;
-                padding: 25px 0 18px;
-            }
 
-            .book-details__copy .eyebrow {
-                margin-bottom: 11px;
-            }
 
-            .book-details h2 {
-                max-width: 90%;
-                /* A long title ran to three lines at this size and pushed the
-                   metadata off the sheet. */
-                font-size: clamp(23px, 6.5vw, 30px);
-            }
 
-            .book-details__author {
-                margin-top: 8px;
-                font-size: 16px;
-            }
 
-            .book-details__description {
-                margin-top: 20px;
-                font-size: 16px;
-            }
 
-            .book-details dl {
-                margin-top: 23px;
-            }
 
             /* The sheet is short; the adjacent volumes are the first thing to
                go. Desktop keeps them. */
-            .book-details dl .meta-aside,
-            .book-details dl.aside-only {
-                display: none;
-            }
 
-            .official-link {
-                margin-top: 22px;
-            }
 
-            /* The sheet covers the lower half, so the volume rises instead of
-               stepping aside. */
-            .is-focused .book.is-active {
-                transform: translate3d(0, -14%, calc(var(--z) + 300px)) rotateY(-90deg);
-            }
 
             .is-focused .site-nav {
                 opacity: .52;
@@ -1256,6 +1226,8 @@
         </nav>
 
         <aside class="book-details" id="details" aria-hidden="true" aria-label="Book details"></aside>
+
+        <button type="button" class="focus-exit" id="focus-exit">[back to shelf]</button>
 
 
         <div class="loading-screen" aria-hidden="false">
@@ -1595,7 +1567,11 @@
                 if (on) {
                     renderDetails();
                     var back = detailsEl.querySelector('#back');
-                    if (back) back.focus();
+                    var exit = document.getElementById('focus-exit');
+                    // offsetParent is null for a display:none element, which is
+                    // exactly the mobile case.
+                    if (back && back.offsetParent) back.focus();
+                    else if (exit && exit.offsetParent) exit.focus();
                 } else {
                     detailsEl.innerHTML = '';
                     stage.focus();
@@ -1707,6 +1683,13 @@
             prevBtn.addEventListener('click', function () { select(active - 1); });
             nextBtn.addEventListener('click', function () { select(active + 1); });
             document.getElementById('inspect').addEventListener('click', function () { setFocus(true); });
+            document.getElementById('focus-exit').addEventListener('click', function () { setFocus(false); });
+
+            // Tapping the enlarged volume puts it back. The details panel is a
+            // sibling of the stage, so clicking it never reaches this.
+            stage.addEventListener('click', function () {
+                if (focused) setFocus(false);
+            });
 
             var resizeTimer;
             window.addEventListener('resize', function () {
