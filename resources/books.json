@@ -2,161 +2,280 @@
   {
     "title": "The Road",
     "author": "Cormac McCarthy",
-    "cover": "https://cv.htarrega.me/books/the_road.webp"
+    "cover": "https://cv.htarrega.me/books/the_road.webp",
+    "pages": 256,
+    "spineColor": "#553b45",
+    "spineInk": "#eae1e5",
+    "ratio": 0.648
   },
   {
     "title": "The Name of the Wind",
     "author": "Patrick Rothfuss",
-    "cover": "https://cv.htarrega.me/books/the_name_of_the_wind.webp"
+    "cover": "https://cv.htarrega.me/books/the_name_of_the_wind.webp",
+    "pages": 736,
+    "spineColor": "#494336",
+    "spineInk": "#eae7e1",
+    "ratio": 0.65
   },
   {
     "title": "My year of magical thinking",
     "author": "Joan Didion",
-    "cover": "https://cv.htarrega.me/books/my_year_of_magical_thinking.webp"
+    "cover": "https://cv.htarrega.me/books/my_year_of_magical_thinking.webp",
+    "spineColor": "#b68dc2",
+    "spineInk": "#301d35",
+    "ratio": 0.65
   },
   {
     "title": "Evangelio liberado",
     "author": "Translated by Roser Homar",
-    "cover": "https://cv.htarrega.me/books/evangelio_liberado.webp"
+    "cover": "https://cv.htarrega.me/books/evangelio_liberado.webp",
+    "spineColor": "#8469b5",
+    "spineInk": "#060509",
+    "ratio": 0.74
   },
   {
     "title": "The Kingdom",
     "author": "Emmanuel Carrere",
-    "cover": "https://cv.htarrega.me/books/the_kingdom.webp"
+    "cover": "https://cv.htarrega.me/books/the_kingdom.webp",
+    "pages": 400,
+    "spineColor": "#574639",
+    "spineInk": "#eae5e1",
+    "ratio": 0.663
   },
   {
     "title": "Poesía completa",
     "author": "Alejandra Pizarnik",
-    "cover": "https://cv.htarrega.me/books/poesia_completa.webp"
+    "cover": "https://cv.htarrega.me/books/poesia_completa.webp",
+    "pages": 480,
+    "spineColor": "#b9bab4",
+    "spineInk": "#2f351d",
+    "ratio": 0.635
   },
   {
     "title": "The Dispossessed",
     "author": "Ursula K. Le Guin",
-    "cover": "https://cv.htarrega.me/books/the_dis.webp"
+    "cover": "https://cv.htarrega.me/books/the_dis.webp",
+    "pages": 352,
+    "spineColor": "#1daa64",
+    "spineInk": "#1b3126",
+    "ratio": 0.663
   },
   {
     "title": "14 of July",
     "author": "Éric Vuillard",
-    "cover": "https://cv.htarrega.me/books/14_july.webp"
+    "cover": "https://cv.htarrega.me/books/14_july.webp",
+    "spineColor": "#634a33",
+    "spineInk": "#eae5e1",
+    "ratio": 0.663
   },
   {
     "title": "The Submission",
     "author": "Michel Houellebecq",
-    "cover": "https://cv.htarrega.me/books/submission.webp"
+    "cover": "https://cv.htarrega.me/books/submission.webp",
+    "pages": 272,
+    "spineColor": "#d1d1d1",
+    "spineInk": "#351d1d",
+    "ratio": 0.667
   },
   {
     "title": "The Bad Girls",
     "author": "Camila Sosa Villalba",
-    "cover": "https://cv.htarrega.me/books/the_bad_girls.webp"
+    "cover": "https://cv.htarrega.me/books/the_bad_girls.webp",
+    "spineColor": "#b3826a",
+    "spineInk": "#31221b",
+    "ratio": 0.657
   },
   {
     "title": "Frankenstein",
     "author": "Mary Shelley",
-    "cover": "https://cv.htarrega.me/books/frankenstein.webp"
+    "cover": "https://cv.htarrega.me/books/frankenstein.webp",
+    "pages": 240,
+    "spineColor": "#c3c3a9",
+    "spineInk": "#35351d",
+    "ratio": 0.627
   },
   {
     "title": "French Revolution",
     "author": "Albert Soboul",
-    "cover": "https://cv.htarrega.me/books/french_rev.webp"
+    "cover": "https://cv.htarrega.me/books/french_rev.webp",
+    "pages": 333,
+    "spineColor": "#adba98",
+    "spineInk": "#2c351d",
+    "ratio": 0.575
   },
   {
     "title": "A report for an academy",
     "author": "Franz Kafka",
-    "cover": "https://cv.htarrega.me/books/report.webp"
+    "cover": "https://cv.htarrega.me/books/report.webp",
+    "spineColor": "#d1d1d1",
+    "spineInk": "#351d1d",
+    "ratio": 0.707
   },
   {
     "title": "The Unworthy",
     "author": "Agustina Bazterrica",
-    "cover": "https://cv.htarrega.me/books/the_unworthy.webp"
+    "cover": "https://cv.htarrega.me/books/the_unworthy.webp",
+    "spineColor": "#333333",
+    "spineInk": "#eae1e1",
+    "ratio": 0.663
   },
   {
     "title": "Man and His Symbols",
     "author": "Karl G. Jung",
-    "cover": "https://cv.htarrega.me/books/symbols.webp"
+    "cover": "https://cv.htarrega.me/books/symbols.webp",
+    "spineColor": "#5d4d30",
+    "spineInk": "#eae7e1",
+    "ratio": 0.648
   },
   {
     "title": "Nausea",
     "author": "Jean Paul Sartre",
-    "cover": "https://cv.htarrega.me/books/nausea.webp"
+    "cover": "https://cv.htarrega.me/books/nausea.webp",
+    "pages": 258,
+    "spineColor": "#566e8f",
+    "spineInk": "#eceef1",
+    "ratio": 0.652
   },
   {
     "title": "The Exegesis of Philip K Dick",
     "author": "Pamela Jackson and Jonathan Lethem",
-    "cover": "https://cv.htarrega.me/books/exegesis.webp"
+    "cover": "https://cv.htarrega.me/books/exegesis.webp",
+    "spineColor": "#4c4c4c",
+    "spineInk": "#eae1e1",
+    "ratio": 0.662
   },
   {
     "title": "The Pragmatic Programmer",
     "author": "David Thomas and Andrew Hunt",
-    "cover": "https://cv.htarrega.me/books/pragmatic_programmer.webp"
+    "cover": "https://cv.htarrega.me/books/pragmatic_programmer.webp",
+    "pages": 352,
+    "spineColor": "#716c73",
+    "spineInk": "#f3f0f4",
+    "ratio": 0.767
   },
   {
     "title": "Freedom's Mirror",
     "author": "Ada Ferrer",
-    "cover": "https://cv.htarrega.me/books/freedom_mirror.webp"
+    "cover": "https://cv.htarrega.me/books/freedom_mirror.webp",
+    "pages": 377,
+    "spineColor": "#bfb1a3",
+    "spineInk": "#35291d",
+    "ratio": 0.662
   },
   {
     "title": "If this is a man",
     "author": "Primo Levi",
-    "cover": "https://cv.htarrega.me/books/levi.webp"
+    "cover": "https://cv.htarrega.me/books/levi.webp",
+    "pages": 205,
+    "spineColor": "#b2a891",
+    "spineInk": "#352e1d",
+    "ratio": 0.668
   },
   {
     "title": "Working Days: The Journals of the Grapes of Wrath",
     "author": "John Steinbeck",
-    "cover": "https://cv.htarrega.me/books/working_days.webp"
+    "cover": "https://cv.htarrega.me/books/working_days.webp",
+    "pages": 180,
+    "spineColor": "#494949",
+    "spineInk": "#eae1e1",
+    "ratio": 0.653
   },
   {
     "title": "The Epic of Gilgamesh",
     "author": "",
-    "cover": "https://cv.htarrega.me/books/gilga.webp"
+    "cover": "https://cv.htarrega.me/books/gilga.webp",
+    "pages": 128,
+    "spineColor": "#2e4a56",
+    "spineInk": "#e1e7ea",
+    "ratio": 0.653
   },
   {
     "title": "Modern Prophecies",
     "author": "Goya, Munch",
-    "cover": "https://cv.htarrega.me/books/prop.webp"
+    "cover": "https://cv.htarrega.me/books/prop.webp",
+    "spineColor": "#aca088",
+    "spineInk": "#352d1d",
+    "ratio": 0.707
   },
   {
     "title": "In Cold Blood",
     "author": "Truman Capote",
-    "cover": "https://cv.htarrega.me/books/cold_blood.webp"
+    "cover": "https://cv.htarrega.me/books/cold_blood.webp",
+    "pages": 352,
+    "spineColor": "#86afb0",
+    "spineInk": "#1d3435",
+    "ratio": 0.648
   },
   {
     "title": "Berserk",
     "author": "Kentaro Miura",
-    "cover": "https://cv.htarrega.me/books/berserk.webp"
+    "cover": "https://cv.htarrega.me/books/berserk.webp",
+    "pages": 696,
+    "spineColor": "#535f42",
+    "spineInk": "#e6eae1",
+    "ratio": 0.705
   },
   {
     "title": "All fires the Fire",
     "author": "Julio Cortazar",
-    "cover": "https://cv.htarrega.me/books/all_fires.webp"
+    "cover": "https://cv.htarrega.me/books/all_fires.webp",
+    "pages": 197,
+    "spineColor": "#d3d2c9",
+    "spineInk": "#35321d",
+    "ratio": 0.648
   },
   {
     "title": "The Wise's Mans Fear",
     "author": "Patrick Rothfuss",
-    "cover": "https://cv.htarrega.me/books/twmf.webp"
+    "cover": "https://cv.htarrega.me/books/twmf.webp",
+    "pages": 1008,
+    "spineColor": "#8f4e3a",
+    "spineInk": "#eae3e1",
+    "ratio": 0.658
   },
   {
     "title": "Our Endless Numbered Days",
     "author": "Claire Fuller",
-    "cover": "https://cv.htarrega.me/books/endless.webp"
+    "cover": "https://cv.htarrega.me/books/endless.webp",
+    "pages": 382,
+    "spineColor": "#981b48",
+    "spineInk": "#eae1e4",
+    "ratio": 0.652
   },
   {
     "title": "Chip War",
     "author": "Chris Miller",
-    "cover": "https://cv.htarrega.me/books/chip_war.webp"
+    "cover": "https://cv.htarrega.me/books/chip_war.webp",
+    "pages": 464,
+    "spineColor": "#3f3f3f",
+    "spineInk": "#eae1e1",
+    "ratio": 0.658
   },
   {
     "title": "Determined: A Science of Life Without Free Will",
     "author": "Robert M. Sapolsky",
-    "cover": "https://cv.htarrega.me/books/sapolsky.webp"
+    "cover": "https://cv.htarrega.me/books/sapolsky.webp",
+    "pages": 520,
+    "spineColor": "#284a45",
+    "spineInk": "#e1eae8",
+    "ratio": 0.652
   },
   {
     "title": "Spinoza: Practical Philosophy",
     "author": "Gilles Deleuze",
-    "cover": "https://cv.htarrega.me/books/spinoza.webp"
+    "cover": "https://cv.htarrega.me/books/spinoza.webp",
+    "pages": 130,
+    "spineColor": "#d1d1d1",
+    "spineInk": "#351d1d",
+    "ratio": 0.693
   },
   {
     "title": "When We Cease to Understand the World",
     "author": "Benjamín Labatut",
-    "cover": "https://cv.htarrega.me/books/when_we_cease.webp"
+    "cover": "https://cv.htarrega.me/books/when_we_cease.webp",
+    "pages": 191,
+    "spineColor": "#d3b167",
+    "spineInk": "#352d1d",
+    "ratio": 0.677
   }
 ]
