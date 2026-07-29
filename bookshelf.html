@@ -1017,17 +1017,17 @@
 
         @media (max-width: 760px) {
             :root {
-                /* The caption becomes an opaque band across the bottom, so the
+                /* The caption is an opaque band across the bottom, so the
                    shelf has to sit clear of it. */
-                --base: 46%;
+                --base: 40%;
             }
 
             .browse-caption {
                 width: auto;
-                bottom: 106px;
+                bottom: 72px;
                 left: 0;
                 right: 0;
-                padding: 52px 20px 19px;
+                padding: 34px 20px 12px;
                 background: linear-gradient(180deg, #00000000, #000000f5 45px, var(--paper) 64px);
             }
 
@@ -1036,8 +1036,9 @@
             }
 
             .browse-caption h1 {
-                max-width: 78vw;
-                font-size: clamp(39px, 12.5vw, 58px);
+                max-width: none;
+                font-size: clamp(25px, 7.4vw, 34px);
+                line-height: 1.1;
             }
 
             .browse-caption__author {
@@ -1045,7 +1046,7 @@
             }
 
             .inspect-button {
-                margin-top: 18px;
+                margin-top: 14px;
             }
 
             /* Touch browses by dragging; the arrows were two more targets
@@ -1056,7 +1057,7 @@
 
             .shelf-index {
                 display: block;
-                bottom: 44px;
+                bottom: 30px;
                 left: 24px;
                 right: 24px;
             }
