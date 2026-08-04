@@ -42,6 +42,11 @@ function markdownToHtml(markdown) {
     // Italic
     html = html.replace(/\*(.*?)\*/gim, '<em>$1</em>');
 
+    // Italic with underscores. Only fires when the delimiters sit at a word
+    // boundary, so snake_case in URLs (wiki/Steering_the_Craft) and in inline
+    // code (max_uses) survives untouched.
+    html = html.replace(/(^|[^A-Za-z0-9_])_([^_\n]+)_(?![A-Za-z0-9_])/g, '$1<em>$2</em>');
+
     // Images (must be before links to avoid conflict)
     // Obsidian-style `![alt|300](url)` sets the display width, letting us ship a
     // higher-resolution file than the box it renders in (sharp on retina screens).
@@ -231,7 +236,7 @@ function generateHtmlPage(frontMatter, spanishHtml, englishHtml, filename) {
     <meta name="description" content="${frontMatter.excerpt || ''}" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:site" content="@htarrega" />
-    <link rel="canonical" href="http://htarrega.me/posts/${slug}.html" />
+    <link rel="canonical" href="https://htarrega.me/posts/${slug}.html" />
     <link rel="icon" href="../favicon/favicon.png" type="image/png">
     <link rel="apple-touch-icon" href="../favicon/apple-touch-icon.png">
     <link rel="stylesheet" href="../styles.css">
