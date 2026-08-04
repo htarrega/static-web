@@ -185,11 +185,32 @@ function parseFrontMatter(content) {
 }
 
 /**
+ * Every page on the site shares one preview image, so posts use it too rather
+ * than carrying their own. Keep in sync with index.html, posts.html,
+ * bookshelf.html and cv.html.
+ */
+const SHARE_IMAGE = 'https://htarrega.me/resources/enun.png';
+
+/**
+ * Escape a string for use inside a double-quoted HTML attribute
+ */
+function escapeAttr(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+/**
  * Generate HTML template for article
  */
 function generateHtmlPage(frontMatter, spanishHtml, englishHtml, filename) {
     const slug = filename.replace('.md', '');
     const isBilingual = englishHtml !== null;
+    const title = escapeAttr(frontMatter.title);
+    const excerpt = escapeAttr(frontMatter.excerpt);
+    const url = `https://htarrega.me/posts/${slug}.html`;
 
     // Language toggle HTML (only if bilingual) - Spanish first
     const languageToggleHtml = isBilingual ? `
@@ -233,15 +254,32 @@ function generateHtmlPage(frontMatter, spanishHtml, englishHtml, filename) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="${frontMatter.excerpt || ''}" />
+    <meta name="description" content="${excerpt}" />
+
+    <!-- Open Graph / LinkedIn -->
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="${url}" />
+    <meta property="og:title" content="${title}" />
+    <meta property="og:description" content="${excerpt}" />
+    <meta property="og:image" content="${SHARE_IMAGE}" />
+    <meta property="og:image:alt" content="Enunciación" />
+    <meta property="og:site_name" content="Hugo Tárrega" />
+
+    <!-- Twitter -->
+    <!-- summary, not summary_large_image: the share image is 288x166, under the
+         300x157 minimum a large card needs to render. -->
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:site" content="@htarrega" />
-    <link rel="canonical" href="https://htarrega.me/posts/${slug}.html" />
+    <meta name="twitter:title" content="${title}" />
+    <meta name="twitter:description" content="${excerpt}" />
+    <meta name="twitter:image" content="${SHARE_IMAGE}" />
+
+    <link rel="canonical" href="${url}" />
     <link rel="icon" href="../favicon/favicon.png" type="image/png">
     <link rel="apple-touch-icon" href="../favicon/apple-touch-icon.png">
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="../post.css">
-    <title>${frontMatter.title} - Hugo Tárrega</title>
+    <title>${title} - Hugo Tárrega</title>
 </head>
 
 <body>
