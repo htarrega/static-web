@@ -1,6 +1,6 @@
 ---
 name: add-book
-description: Add or remove a book on the htarrega.me bookshelf. Use when asked to add/añadir or remove/quitar a book, libro, or novel from the bookshelf/estantería — fetches the cover via the iTunes Search API (the iTunes Artwork Finder backend), uploads it to Cloudflare R2, edits resources/books.json, derives the spine binding, and deploys via git push. Repo-specific (static-web).
+description: Add or remove a book on the htarrega.me bookshelf — fetches the cover via the iTunes Search API (the iTunes Artwork Finder backend), uploads it to Cloudflare R2, edits resources/books.json, derives the spine binding, and deploys via git push. Repo-specific (static-web). Triggers in English on add / put / stick / remove / delete / drop / take off / swap a book, novel, or read, on my books, my bookshelf, my shelf, my reading list, my site, my web, my website. Triggers in Spanish (the user often writes in Spanish, with or without accents) on añade / añadir / agrega / agregar / mete / meter / pon / poner / suma / quita / quitar / elimina / eliminar / borra / borrar / saca / sacar / cambia / sustituye un libro, una novela, una lectura, on mis libros, mi estantería / estanteria, mi biblioteca, mi lista de lectura, mi web, mi página / pagina, mi sitio. A request naming a book title alongside any of these verbs is this skill, even if the word "bookshelf" or "estantería" never appears.
 argument-hint: [book title, optionally author]
 allowed-tools: Bash, Read, Write, Edit
 ---
@@ -136,6 +136,15 @@ Leave the R2 object in place unless the user asks for it to be deleted — it co
 ```bash
 wrangler r2 object delete personalweb/books/<slug>.webp --remote
 ```
+
+## Working in Spanish
+
+The user frequently writes the request in Spanish while the shelf itself is titled in English. Two separate decisions follow, and they are independent:
+
+- **Which title to store.** Default to the **English/original edition title**, because that is what the rest of `books.json` uses — a lone Spanish title reads as a mistake on the shelf. Store the Spanish one only if the user asks for it ("déjalo en español", "con el título español").
+- **Which edition to source artwork from.** Always whichever one iTunes actually has, regardless of the title you store. These need not match.
+
+Spanish-language requests also tend to give an approximate title from memory. Confirm the real one before searching — `"Así en la tierra como debajo de ella"` was the user's rendering of Ana Paula Maia's *Así en la tierra como debajo de **la tierra***, and the wrong string returns nothing from iTunes. A web search on the approximate title resolves the author and the exact wording, and from there the English edition.
 
 ## Notes
 - The cover WebP is a build artifact — write it to a scratch/temp dir, not into the repo. Only `books.json` gets committed.
