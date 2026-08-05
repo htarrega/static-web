@@ -131,11 +131,21 @@ git commit -m "Remove '<Title>' from bookshelf"
 git push origin master
 ```
 
-Leave the R2 object in place unless the user asks for it to be deleted — it costs nothing, and it means re-adding the book later needs no re-upload. If they do want it gone:
+### The cover in R2
+
+What happens to the jacket depends on **why** the book is leaving:
+
+- **A substitution** — the user swaps one book for another in a single request ("quita X y mete Y", "replace X with Y", "cambia X por Y"). **Delete the old object.** This is a standing instruction from the user, so it needs no separate confirmation; the substitution request is the authorisation.
+- **A plain removal** — the user just takes a book off with nothing replacing it. **Leave the object in place** unless they ask for it gone. It costs nothing, and re-adding later needs no re-upload.
 
 ```bash
 wrangler r2 object delete personalweb/books/<slug>.webp --remote
+curl -sI "https://cv.htarrega.me/books/<slug>.webp?cb=$RANDOM" | head -1   # expect HTTP/2 404
 ```
+
+**Verify over HTTP, not with `wrangler r2 object get`.** Observed on wrangler 4.58.0: minutes after a successful delete, `object get --remote --pipe` still returned the full original payload with exit 0, while the public URL returned 404 with `cf-cache-status: DYNAMIC` — an uncached, straight-to-origin miss. The API read path is cached; the edge read is authoritative. Trusting `object get` here reports a delete as failed when it succeeded. Add the `?cb=` query so you cannot be fooled in the other direction by an edge-cached 200.
+
+Deleting is irreversible — the WebP is a build artifact, so recovering it means re-running steps 1–3. Confirm you have the right slug before firing, and never delete the slug you just uploaded.
 
 ## Working in Spanish
 
