@@ -1,13 +1,31 @@
 ---
 name: add-book
-description: Add a book to the htarrega.me bookshelf. Use when asked to add/añadir a book, libro, or novel to the bookshelf/estantería — fetches the cover via the iTunes Search API (the iTunes Artwork Finder backend), uploads it to Cloudflare R2, appends the entry to resources/books.json, and deploys via git push. Repo-specific (static-web).
+description: Add or remove a book on the htarrega.me bookshelf. Use when asked to add/añadir or remove/quitar a book, libro, or novel from the bookshelf/estantería — fetches the cover via the iTunes Search API (the iTunes Artwork Finder backend), uploads it to Cloudflare R2, edits resources/books.json, derives the spine binding, and deploys via git push. Repo-specific (static-web).
 argument-hint: [book title, optionally author]
 allowed-tools: Bash, Read, Write, Edit
 ---
 
 # Add a book to the htarrega.me bookshelf
 
-This repo (`static-web`) is a static site deployed to **GitHub Pages** (`CNAME` → htarrega.me, remote `htarrega/static-web`): pushing to `master` publishes. The bookshelf page (`bookshelf.html`) fetches `resources/books.json` and renders each entry from a `title`, `author`, and `cover` URL. Covers are **not** committed to the repo — they live in the Cloudflare R2 bucket `personalweb` under the `books/` prefix and are served from `https://cv.htarrega.me/books/<slug>.webp`.
+This repo (`static-web`) is a static site deployed to **GitHub Pages** (`CNAME` → htarrega.me, remote `htarrega/static-web`): pushing to `master` publishes. The bookshelf page (`bookshelf.html`) fetches `resources/books.json` and renders each entry as a 3D volume on a shelf. Covers are **not** committed to the repo — they live in the Cloudflare R2 bucket `personalweb` under the `books/` prefix and are served from `https://cv.htarrega.me/books/<slug>.webp`.
+
+## The entry schema
+
+Each object in `resources/books.json` has three hand-written fields and three derived ones:
+
+| Field | Source | Purpose |
+| --- | --- | --- |
+| `title` | you | Caption + spine type |
+| `author` | you | Caption + spine type |
+| `cover` | you | `https://cv.htarrega.me/books/<slug>.webp` |
+| `pages` | you (optional) | Spine **thickness**: `8 + pages * 0.062`, clamped 16–66px. Omitted or `0` falls back to a hash of the title, so a real page count is worth looking up. |
+| `spineColor` | `scripts/derive-spines.py` | Cloth colour, sampled from the jacket's left strip |
+| `spineInk` | `scripts/derive-spines.py` | Type colour, chosen to clear WCAG AA on the cloth |
+| `ratio` | `scripts/derive-spines.py` | Jacket width/height, so the shelf can lay out before covers load |
+
+Never hand-write the three derived fields — run the script (step 5). It is idempotent and safe to re-run over the whole file.
+
+To **remove** a book instead, skip to [Removing a book](#removing-a-book).
 
 Follow these steps in order.
 
@@ -61,13 +79,14 @@ curl -sI https://cv.htarrega.me/books/<slug>.webp   # expect HTTP/2 200, content
 
 ## 4. Append the entry to books.json
 
-Add one object to the end of the array in `resources/books.json`. Keep the author style consistent with the rest of the file — plain author name, no translator (unless the book is credited to a translator, as with a few existing entries):
+Add one object to the end of the array in `resources/books.json` with the **hand-written fields only**. Keep the author style consistent with the rest of the file — plain author name, no translator (unless the book is credited to a translator, as with a few existing entries). Include `pages` (the real page count of the edition; look it up) so the spine gets a truthful thickness:
 
 ```json
   {
     "title": "When We Cease to Understand the World",
     "author": "Benjamín Labatut",
-    "cover": "https://cv.htarrega.me/books/when_we_cease.webp"
+    "cover": "https://cv.htarrega.me/books/when_we_cease.webp",
+    "pages": 191
   }
 ```
 
@@ -77,7 +96,19 @@ Then validate:
 python3 -c "import json; d=json.load(open('resources/books.json')); print('valid,', len(d), 'books; last:', d[-1]['title'])"
 ```
 
-## 5. Deploy
+## 5. Derive the spine binding
+
+`spineColor`, `spineInk`, and `ratio` are baked into the JSON so the page never has to download a jacket to lay out the shelf. Fill them in by running:
+
+```bash
+python3 scripts/derive-spines.py
+```
+
+It downloads every cover (cached under `$TMPDIR/htarrega-cover-cache`), samples the left 16% of each jacket, conditions the dominant colour for a black page, picks an ink that clears 4.5:1, and rewrites `resources/books.json` in place. Expect a `N/N bindings derived from their jackets` line — if your new book reports `no image`, the R2 URL from step 3 is wrong.
+
+Requires Pillow (`pip install pillow`). If it cannot run, the entry still renders using the hash palette in `bookshelf.html` — degraded, not broken.
+
+## 6. Deploy
 
 Publishing = push to `master` (GitHub Pages auto-deploys in ~1 min). Stage **only** `resources/books.json` — never `node_modules/`, `.wrangler/`, or the local `books/` scratch dir:
 
@@ -88,6 +119,23 @@ git push origin master
 ```
 
 The book is then live on `https://htarrega.me/bookshelf.html`.
+
+## Removing a book
+
+Delete its object from the array in `resources/books.json` — that alone takes it off the shelf. Do **not** re-run `derive-spines.py` for a removal; the remaining entries already carry their bindings.
+
+```bash
+python3 -c "import json; d=json.load(open('resources/books.json')); print('valid,', len(d), 'books')"
+git add resources/books.json
+git commit -m "Remove '<Title>' from bookshelf"
+git push origin master
+```
+
+Leave the R2 object in place unless the user asks for it to be deleted — it costs nothing, and it means re-adding the book later needs no re-upload. If they do want it gone:
+
+```bash
+wrangler r2 object delete personalweb/books/<slug>.webp --remote
+```
 
 ## Notes
 - The cover WebP is a build artifact — write it to a scratch/temp dir, not into the repo. Only `books.json` gets committed.
