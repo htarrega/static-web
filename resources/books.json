@@ -21,6 +21,7 @@
     "title": "My year of magical thinking",
     "author": "Joan Didion",
     "cover": "https://cv.htarrega.me/books/my_year_of_magical_thinking.webp",
+    "pages": 227,
     "spineColor": "#b68dc2",
     "spineInk": "#301d35",
     "ratio": 0.65
@@ -29,6 +30,7 @@
     "title": "Evangelio liberado",
     "author": "Translated by Roser Homar",
     "cover": "https://cv.htarrega.me/books/evangelio_liberado.webp",
+    "pages": 384,
     "spineColor": "#8469b5",
     "spineInk": "#060509",
     "ratio": 0.74
@@ -64,6 +66,7 @@
     "title": "14 of July",
     "author": "Éric Vuillard",
     "cover": "https://cv.htarrega.me/books/14_july.webp",
+    "pages": 192,
     "spineColor": "#634a33",
     "spineInk": "#eae5e1",
     "ratio": 0.663
@@ -81,6 +84,7 @@
     "title": "The Bad Girls",
     "author": "Camila Sosa Villalba",
     "cover": "https://cv.htarrega.me/books/the_bad_girls.webp",
+    "pages": 208,
     "spineColor": "#b3826a",
     "spineInk": "#31221b",
     "ratio": 0.657
@@ -115,6 +119,7 @@
     "title": "The Unworthy",
     "author": "Agustina Bazterrica",
     "cover": "https://cv.htarrega.me/books/the_unworthy.webp",
+    "pages": 192,
     "spineColor": "#333333",
     "spineInk": "#eae1e1",
     "ratio": 0.663
@@ -123,6 +128,7 @@
     "title": "Man and His Symbols",
     "author": "Karl G. Jung",
     "cover": "https://cv.htarrega.me/books/symbols.webp",
+    "pages": 320,
     "spineColor": "#5d4d30",
     "spineInk": "#eae7e1",
     "ratio": 0.648
@@ -140,6 +146,7 @@
     "title": "The Exegesis of Philip K Dick",
     "author": "Pamela Jackson and Jonathan Lethem",
     "cover": "https://cv.htarrega.me/books/exegesis.webp",
+    "pages": 944,
     "spineColor": "#4c4c4c",
     "spineInk": "#eae1e1",
     "ratio": 0.662
@@ -193,6 +200,7 @@
     "title": "Modern Prophecies",
     "author": "Goya, Munch",
     "cover": "https://cv.htarrega.me/books/prop.webp",
+    "pages": 336,
     "spineColor": "#aca088",
     "spineInk": "#352d1d",
     "ratio": 0.707
