@@ -286,5 +286,14 @@
     "spineColor": "#1eb0b7",
     "spineInk": "#1d3435",
     "ratio": 0.662
+  },
+  {
+    "title": "The Eternal Husband",
+    "author": "Fyodor Dostoevsky",
+    "cover": "https://cv.htarrega.me/books/eternal_husband.webp",
+    "pages": 224,
+    "spineColor": "#d3227e",
+    "spineInk": "#f9f7f8",
+    "ratio": 0.715
   }
 ]
