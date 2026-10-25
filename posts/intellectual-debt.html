@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Now that execution is easy, keeping up is the hard part" />
+
+    <!-- Open Graph / LinkedIn -->
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://htarrega.me/posts/intellectual-debt.html" />
+    <meta property="og:title" content="Intellectual debt" />
+    <meta property="og:description" content="Now that execution is easy, keeping up is the hard part" />
+    <meta property="og:image" content="https://htarrega.me/resources/enun.png" />
+    <meta property="og:image:alt" content="Enunciación" />
+    <meta property="og:site_name" content="Hugo Tárrega" />
+
+    <!-- Twitter -->
+    <!-- summary, not summary_large_image: the share image is 288x166, under the
+         300x157 minimum a large card needs to render. -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@htarrega" />
+    <meta name="twitter:title" content="Intellectual debt" />
+    <meta name="twitter:description" content="Now that execution is easy, keeping up is the hard part" />
+    <meta name="twitter:image" content="https://htarrega.me/resources/enun.png" />
+
+    <link rel="canonical" href="https://htarrega.me/posts/intellectual-debt.html" />
+    <link rel="icon" href="../favicon/favicon.png" type="image/png">
+    <link rel="apple-touch-icon" href="../favicon/apple-touch-icon.png">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../post.css">
+    <title>Intellectual debt - Hugo Tárrega</title>
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li><a href="../index.html">[htarrega.me]</a></li>
+            <li><a href="../cv.html">[cv]</a></li>
+            <li><a href="../bookshelf.html">[bookshelf]</a></li>
+            <li><a href="../posts.html">[posts]</a></li>
+        </ul>
+    </nav>
+    <div id="maincontent">
+        <h1>Intellectual debt</h1>
+        <div class="post-meta">October 2026</div>
+        
+        <div class="language-toggle">
+            <button class="lang-btn active" onclick="switchLanguage('es')">Español</button>
+            <button class="lang-btn" onclick="switchLanguage('en')">English</button>
+        </div>
+        
+        <div id="es-content" class="lang-section active">
+            <p>
+Ahora que lo tenemos todo automatizado al máximo, cada semana me encuentro con el mismo problema: la <strong>deuda intelectual</strong>. Ya sea en uno de mis repos o en un cambio que ha hecho un compañero. Ahora que ejecutar es fácil, mantenerse al día del conocimiento es más difícil que nunca. Y el problema crece con el tamaño del equipo.
+</p>
+<p>
+¿Alguna vez te ha costado que tus compañeros lean el muro de texto que dejaste en el canal de tech sobre tu nuevo diseño de arquitectura? ¿Te ha costado a ti seguir lo que estaba haciendo el robot? <strong>Haz un vídeo.</strong>
+</p>
+<p>
+Sí, haz un vídeo. El famoso canal de YouTube 3b1b tiene su propio <a href="https://github.com/3b1b/manim" target="_blank">repo open source</a> con el que puedes usar sus herramientas para generar vídeos. Clónalo, apunta a Claude hacia él y pídele un vídeo corto de ese diseño que quieres que tu equipo valide, o de la mejora en tiempos de respuesta de tu último ticket. Y si quieres ir un paso más allá, puedes conectar Claude a la API de <a href="https://elevenlabs.io" target="_blank">ElevenLabs</a> para la voz en off, o correr <a href="https://github.com/hexgrad/kokoro" target="_blank">Kokoro</a> en local.
+</p>
+        </div>
+
+        <div id="en-content" class="lang-section">
+            <p>
+Now that we're all automated to the max, I run into the same problem every week: <strong>intellectual debt</strong>. Whether it's in one of my own repos or in a change a teammate made. Now that execution is easy, staying on top of the knowledge is harder than ever. And the problem grows with team size.
+</p>
+<p>
+Have you ever struggled to get your teammates to read the wall of text you dropped in the tech channel about your new software architecture design? Have you yourself struggled to follow what the robot was doing? <strong>Make a video.</strong>
+</p>
+<p>
+Yes, make a video. The famous YouTube channel 3b1b has its own <a href="https://github.com/3b1b/manim" target="_blank">open-source repo</a> where you can use their tools to generate videos. Just clone it, point Claude at it, and ask it to generate a short video of that design you want your team to validate, or of the response-time improvements from your latest ticket. And if you want to go a step further, you can connect Claude to the <a href="https://elevenlabs.io" target="_blank">ElevenLabs</a> API for the voiceover, or run <a href="https://github.com/hexgrad/kokoro" target="_blank">Kokoro</a> locally.
+</p>
+        </div>
+    </div>
+
+    <script>
+        function switchLanguage(lang) {
+            document.getElementById('en-content').classList.remove('active');
+            document.getElementById('es-content').classList.remove('active');
+
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+
+            if (lang === 'es') {
+                document.getElementById('es-content').classList.add('active');
+                document.querySelectorAll('.lang-btn')[0].classList.add('active');
+            } else {
+                document.getElementById('en-content').classList.add('active');
+                document.querySelectorAll('.lang-btn')[1].classList.add('active');
+            }
+        }
+    </script>
+</body>
+
+</html>
