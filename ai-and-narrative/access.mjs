@@ -7,6 +7,8 @@
      ./access.mjs edit <name> [--days N] [--until YYYY-MM-DD|none]   change durations only
      ./access.mjs remove <name>
      ./access.mjs link <name>                                  magic link for the QR code
+     ./access.mjs push                                         re-upload the list as is (e.g. after a failed upload)
+     ./access.mjs help
 
    Flags for any command that changes something:
      --local   only update .dev.vars (for `wrangler dev`), don't touch Cloudflare
@@ -37,6 +39,7 @@ function parseArgs(argv) {
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--local') out.local = true;
+    else if (a === '--help' || a === '-h') out._.unshift('help');
     else if (a === '--days' || a === '--until') out[a.slice(2)] = argv[++i];
     else if (a.startsWith('--')) die(`unknown flag ${a}`);
     else out._.push(a);
@@ -148,6 +151,11 @@ switch (cmd) {
     if (!list.some(e => e.name === name)) die(`no password called "${name}"`);
     save(list.filter(e => e.name !== name), args.local);
     console.log(`Removed "${name}". Everyone who entered with it is logged out now.`);
+    break;
+  }
+  case 'push': {
+    if (!list.length) die('nothing to push: add a password first');
+    save(list, args.local);
     break;
   }
   case 'link': {
