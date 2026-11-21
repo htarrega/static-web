@@ -9,6 +9,10 @@
   "routes": [
     { "pattern": "htarrega.me/ai-and-narrative*", "zone_name": "htarrega.me" }
   ],
+  // Failed-login counters per IP (see MAX_FAILS in worker.js).
+  "kv_namespaces": [
+    { "binding": "RL", "id": "330d2773cb7b4254a6477803a270f7f6" }
+  ],
   "assets": {
     "directory": "./site",
     "binding": "ASSETS",

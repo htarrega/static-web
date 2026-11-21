@@ -17,6 +17,10 @@
 const PREFIX = '/ai-and-narrative';
 const COOKIE = 'ain_session';
 const DAY = 86400;
+// Brute-force limit: after MAX_FAILS wrong passwords/magic links from one IP,
+// that IP is locked out until FAIL_WINDOW seconds pass with no new failure.
+const MAX_FAILS = 30;
+const FAIL_WINDOW = 3600;
 
 const enc = new TextEncoder();
 const hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
@@ -51,6 +55,16 @@ function loadAccess(env) {
 }
 
 const nowSec = () => Math.floor(Date.now() / 1000);
+
+/* Counters live in KV. If KV is missing or over quota, fail open: the gate
+   itself still holds, only the throttling is lost. */
+const failKey = req => 'fail:' + (req.headers.get('CF-Connecting-IP') || 'local');
+async function failures(env, req) {
+  try { return env.RL ? parseInt((await env.RL.get(failKey(req))) || '0', 10) : 0; } catch { return 0; }
+}
+async function recordFailure(env, req, n) {
+  try { if (env.RL) await env.RL.put(failKey(req), String(n + 1), { expirationTtl: FAIL_WINDOW }); } catch {}
+}
 const active = (e, now) => untilEpoch(e) > now;
 
 /* Check every active entry (no early exit) so timing doesn't reveal which matched. */
@@ -138,9 +152,12 @@ export default {
     if (sub === '/login' && req.method === 'POST') {
       const form = await req.formData();
       const next = safeNext(String(form.get('next') || ''));
+      const fails = await failures(env, req);
+      if (fails >= MAX_FAILS) return harden(loginPage(next, 'locked'));
       const e = await matchPassword(list, String(form.get('password') || ''));
       if (e) return harden(redirect(next, await issueCookie(e)));
-      return harden(loginPage(next, true));
+      await recordFailure(env, req, fails);
+      return harden(loginPage(next, 'bad'));
     }
 
     if (sub === '/logout') return harden(redirect(PREFIX + '/', sessionCookie('', 0)));
@@ -150,13 +167,16 @@ export default {
     if (k !== null) {
       url.searchParams.delete('k');
       const clean = url.pathname + (url.search || '');
+      const fails = await failures(env, req);
+      if (fails >= MAX_FAILS) return harden(loginPage(safeNext(clean), 'locked'));
       const e = await matchMagic(list, k);
       if (e) return harden(redirect(clean, await issueCookie(e)));
-      return harden(loginPage(safeNext(clean), true));
+      await recordFailure(env, req, fails);
+      return harden(loginPage(safeNext(clean), 'bad'));
     }
 
     if (!(await validCookie(list, getCookie(req, COOKIE)))) {
-      return harden(loginPage(safeNext(path + url.search), false));
+      return harden(loginPage(safeNext(path + url.search), null));
     }
 
     // Authorised: map /ai-and-narrative/<x> to site/<x>.
@@ -173,7 +193,7 @@ function esc(s) {
 
 /* Bilingual password screen. Self-contained: shared.css sits behind the gate,
    so the neo-brutalist tokens are repeated here. */
-function loginPage(next, failed) {
+function loginPage(next, state) { // state: null | 'bad' | 'locked'
   const html = `<!DOCTYPE html>
 <html lang="es">
 <head>
@@ -186,7 +206,7 @@ function loginPage(next, failed) {
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Atkinson+Hyperlegible:wght@400;700&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
 <script>
 (function(){var l=null;try{l=localStorage.getItem('ain-lang')}catch(e){}
-if(l!=='es'&&l!=='en')l=/^es\\b/i.test(navigator.language||'')?'es':'en';
+if(l!=='es'&&l!=='en')l='es';
 document.documentElement.lang=l;})();
 </script>
 <style>
@@ -231,7 +251,8 @@ input[type=password]{width:100%;min-height:56px;font:inherit;font-size:1.1rem;pa
   <h1><span data-l="es">Material del taller</span><span data-l="en">Workshop material</span></h1>
   <p><span data-l="es">Esta página es solo para quienes asisten al taller. Escribe la contraseña que os dimos en clase.</span><span data-l="en">This page is only for workshop attendees. Enter the password we gave you in class.</span></p>
   <form class="card" method="post" action="${PREFIX}/login">
-    ${failed ? `<p class="err" role="alert"><span data-l="es">Esa contraseña no es correcta. Prueba otra vez.</span><span data-l="en">That password isn't right. Try again.</span></p>` : ''}
+    ${state === 'bad' ? `<p class="err" role="alert"><span data-l="es">Esa contraseña no es correcta. Prueba otra vez.</span><span data-l="en">That password isn't right. Try again.</span></p>` : ''}
+    ${state === 'locked' ? `<p class="err" role="alert"><span data-l="es">Demasiados intentos fallidos. Espera una hora y vuelve a probar.</span><span data-l="en">Too many failed attempts. Wait an hour and try again.</span></p>` : ''}
     <label for="pw"><span data-l="es">Contraseña</span><span data-l="en">Password</span></label>
     <input id="pw" name="password" type="password" autocomplete="current-password" required autofocus>
     <input type="hidden" name="next" value="${esc(next)}">
@@ -247,5 +268,6 @@ document.querySelectorAll('[data-set]').forEach(function(b){b.onclick=function()
 </script>
 </body>
 </html>`;
-  return new Response(html, { status: failed ? 401 : 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+  const status = state === 'locked' ? 429 : state === 'bad' ? 401 : 200;
+  return new Response(html, { status, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
 }

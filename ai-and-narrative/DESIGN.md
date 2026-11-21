@@ -7,8 +7,7 @@ Website for the workshop **«Imaginación, escritura e IA» / «AI & narrative»
 This document records **what** was built, **why**, and the alternatives that
 were rejected, so any future change starts from the same premises.
 
-Status: **setup phase.** Content and design approved; the Worker is written
-and tested locally; not deployed yet (see "Pending").
+Status: **live** since 21 Nov 2026. See "Pending" for what's left.
 
 ---
 
@@ -171,8 +170,10 @@ ai-and-narrative/          (in static-web)
 - **Visible switch on every page**, with ES/EN codes; the active language is
   marked.
 - **No automatic language redirect** (recommended practice). The landing page
-  picks the saved language or, failing that, the browser's, without
-  redirecting: it only swaps the text at the same URL.
+  and the password screen use the saved language or, failing that,
+  **Spanish** (the workshop is taught in Spanish; the author asked for it as
+  the default instead of following the browser). They only swap the text at
+  the same URL.
 - Correct `lang` on every page (screen readers, hyphenation). `hreflang` in
   `<link rel="alternate">` only as a hint; no SEO value since the content is
   private.
@@ -209,6 +210,11 @@ yellow/red/blue/green, Archivo Black + Atkinson Hyperlegible + Space Mono,
 20 px base size). Atkinson Hyperlegible was chosen for low-vision legibility:
 don't swap it lightly. The additions (language switch, "Coming soon" tiles)
 reuse the same tokens.
+
+**Font-size panel on mobile:** at ≤520 px the top bar wraps and "Aa" ends up
+on the left, so the panel (anchored to its right edge) opened off-screen and
+the size couldn't be changed. On mobile it is now a fixed bottom sheet,
+full width, with 56 px buttons.
 
 #### Alignment with neubrutalism.com (Nov 2026)
 
@@ -289,6 +295,16 @@ Decisions:
   and the Workers free plan allows ~10 ms CPU per request. Passwords must
   still be 12+ characters (enforced by the tool).
 - Cookie flags `HttpOnly; Secure; SameSite=Lax; Path=/ai-and-narrative`.
+- **Brute-force limit: 30 failed attempts per IP** (wrong password or bad
+  magic link), then the IP gets the screen with "too many attempts" (429),
+  even with the right password, until an hour passes with no new failure.
+  Counters live in a Workers KV namespace (`RL`, key `fail:<ip>`, TTL 1 h).
+  Done in the Worker instead of a Cloudflare WAF rule because the free WAF
+  rule only allows 10-second windows and wrangler's login can't manage WAF
+  rules. Counting only failures keeps KV writes far under the free 1,000/day.
+  If KV is unavailable the counter fails open: the gate still holds, only
+  the throttling is lost. 30 is generous on purpose: attendees mistype, and
+  a classroom shares one IP.
 - Comparisons are constant-time (`crypto.subtle.timingSafeEqual` over SHA-256
   digests).
 - The `next` redirect only accepts paths under `/ai-and-narrative/` (no open
@@ -344,12 +360,11 @@ would overwrite it.
 
 ## 7. Pending
 
-- `wrangler login` (author, interactive).
-- Create the real password(s) with `./access.mjs add …` (author, in their own
-  terminal, so they never pass through the assistant).
-- `wrangler deploy` and production checks with curl.
-- Cloudflare rate-limiting rule on `POST /ai-and-narrative/login` (dashboard).
-- Magic link + QR code for class.
+Done (21 Nov 2026): deployed, password `bibliocafe2026` (183-day sessions,
+valid until 2027-05-21), QR generated, 30-attempt limit, Spanish default,
+mobile fix for the font-size panel.
+
+Remaining:
 - Check the exact label of Claude's privacy setting in the English
   translation ("Help improve Claude"); it depends on the real UI.
 
