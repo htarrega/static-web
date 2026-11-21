@@ -16,6 +16,7 @@
 
    --days   how long a device stays logged in after typing the password (default 120)
    --until  last day the password works; sessions never outlive it (default: no end)
+   --allow-short  accept a password under 12 characters (throwaway tests only)
 
    State lives in access.json (hashes only, never plaintext; encrypted in git by
    git-crypt). Every change rewrites .dev.vars and, unless --local, uploads the
@@ -41,6 +42,7 @@ function parseArgs(argv) {
     const a = argv[i];
     if (a === '--local') out.local = true;
     else if (a === '--qr') out.qr = true;
+    else if (a === '--allow-short') out.allowShort = true;
     else if (a === '--help' || a === '-h') out._.unshift('help');
     else if (a === '--days' || a === '--until') out[a.slice(2)] = argv[++i];
     else if (a.startsWith('--')) die(`unknown flag ${a}`);
@@ -121,7 +123,7 @@ switch (cmd) {
     const name = checkName(rawName);
     const old = list.find(e => e.name === name);
     const pw = await askHidden(`New password for "${name}": `);
-    if (pw.length < 12) die('use at least 12 characters (4 random words is ideal)');
+    if (pw.length < 12 && !args.allowShort) die('use at least 12 characters (4 random words is ideal), or pass --allow-short for a throwaway test password');
     if (!process.env.AIN_PASSWORD && pw !== await askHidden('Repeat it: ')) die("they don't match");
     const salt = randomBytes(16).toString('hex');
     const entry = {
