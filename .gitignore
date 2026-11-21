@@ -3,3 +3,4 @@ node_modules/
 .claude/settings.local.json
 ai-and-narrative/.dev.vars
 ai-and-narrative/qr-*.png
+ai-and-narrative/access.local.json

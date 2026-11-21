@@ -11,26 +11,25 @@
      ./access.mjs push                                         re-upload the list as is (e.g. after a failed upload)
      ./access.mjs help
 
-   Flags for any command that changes something:
-     --local   only update .dev.vars (for `wrangler dev`), don't touch Cloudflare
-
+   --local  work on a separate test list, access.local.json (gitignored), and
+            .dev.vars (for `wrangler dev`) only; never touches access.json or
+            Cloudflare. Works with every command, e.g. `list --local`.
    --days   how long a device stays logged in after typing the password (default 120)
    --until  last day the password works; sessions never outlive it (default: no end)
    --allow-short  accept a password under 12 characters (throwaway tests only)
 
-   State lives in access.json (hashes only, never plaintext; encrypted in git by
-   git-crypt). Every change rewrites .dev.vars and, unless --local, uploads the
-   whole list to Cloudflare as the ACCESS secret with `wrangler secret put`,
-   which takes effect immediately. See DESIGN.md. */
+   The real list lives in access.json (hashes only, never plaintext; encrypted in
+   git by git-crypt). Every change without --local rewrites access.json and
+   .dev.vars and uploads the whole list to Cloudflare as the ACCESS secret with
+   `wrangler secret put`, which takes effect immediately. See DESIGN.md. */
 
 import { createHash, createHmac, randomBytes } from 'node:crypto';
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
-import { dirname, join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const DIR = dirname(fileURLToPath(import.meta.url));
-const FILE = join(DIR, 'access.json');
 const DEV_VARS = join(DIR, '.dev.vars');
 const SITE = 'https://htarrega.me/ai-and-narrative/';
 
@@ -50,8 +49,6 @@ function parseArgs(argv) {
   }
   return out;
 }
-
-const load = () => (existsSync(FILE) ? JSON.parse(readFileSync(FILE, 'utf8')) : []);
 
 function checkName(n) {
   if (!n || !/^[a-z0-9-]+$/.test(n)) die('name: lowercase letters, digits and hyphens only (e.g. bibliocafe)');
@@ -98,11 +95,11 @@ function describe(e) {
     `valid until ${e.until || '(no end)'}   created ${e.created}`;
 }
 
-function save(list, local) {
+function save(list) {
   writeFileSync(FILE, JSON.stringify(list, null, 2) + '\n');
   const json = JSON.stringify(list.map(({ name, salt, hash, sessionDays, until }) => ({ name, salt, hash, sessionDays, until })));
   writeFileSync(DEV_VARS, `ACCESS='${json}'\n`, { mode: 0o600 });
-  if (local) { console.log('✔ saved locally (access.json, .dev.vars). Restart `wrangler dev` to pick it up.'); return; }
+  if (args.local) { console.log(`✔ saved locally (${basename(FILE)}, .dev.vars). Restart \`wrangler dev\` to pick it up.`); return; }
   const r = spawnSync('wrangler', ['secret', 'put', 'ACCESS'], { cwd: DIR, input: json, stdio: ['pipe', 'inherit', 'inherit'] });
   if (r.status !== 0) die('wrangler secret put failed; access.json is saved, re-run the command once wrangler works (`wrangler login`).');
   console.log('✔ uploaded to Cloudflare. Active now.');
@@ -110,18 +107,23 @@ function save(list, local) {
 
 const args = parseArgs(process.argv.slice(2));
 const [cmd, rawName] = args._;
-const list = load();
+// --local keeps test entries out of the real list, so a later upload can't ship them.
+const FILE = join(DIR, args.local ? 'access.local.json' : 'access.json');
+const list = existsSync(FILE) ? JSON.parse(readFileSync(FILE, 'utf8')) : [];
+const today = () => new Date().toISOString().slice(0, 10);
+const find = name => list.find(e => e.name === name);
+const existing = name => find(name) || die(`no password called "${name}"`);
 
 switch (cmd) {
   case 'list': {
+    if (args.local) console.log('Local test list (access.local.json, used by wrangler dev):');
     if (!list.length) console.log('(no passwords yet; add one with ./access.mjs add <name>)');
-    const today = new Date().toISOString().slice(0, 10);
-    for (const e of list) console.log((e.until && e.until < today ? 'EXPIRED  ' : 'active   ') + describe(e));
+    for (const e of list) console.log((e.until && e.until < today() ? 'EXPIRED  ' : 'active   ') + describe(e));
     break;
   }
   case 'add': {
     const name = checkName(rawName);
-    const old = list.find(e => e.name === name);
+    const old = find(name);
     const pw = await askHidden(`New password for "${name}": `);
     if (pw.length < 12 && !args.allowShort) die('use at least 12 characters (4 random words is ideal), or pass --allow-short for a throwaway test password');
     if (!process.env.AIN_PASSWORD && pw !== await askHidden('Repeat it: ')) die("they don't match");
@@ -131,39 +133,36 @@ switch (cmd) {
       hash: createHash('sha256').update(salt + pw).digest('hex'),
       sessionDays: args.days ? checkDays(args.days) : old?.sessionDays ?? 120,
       until: args.until ? checkUntil(args.until) : old?.until ?? null,
-      created: new Date().toISOString().slice(0, 10),
+      created: today(),
     };
-    const next = list.filter(e => e.name !== name).concat(entry);
-    save(next, args.local);
+    save(list.filter(e => e.name !== name).concat(entry));
     console.log((old ? 'Changed: ' : 'Added:   ') + describe(entry));
     if (old) console.log('  Everyone logged in with the old one is logged out; its old magic link stops working.');
     break;
   }
   case 'edit': {
-    const name = checkName(rawName);
-    const e = list.find(x => x.name === name) || die(`no password called "${name}"`);
+    const e = existing(checkName(rawName));
     if (!args.days && !args.until) die('nothing to change: pass --days and/or --until');
     if (args.days) e.sessionDays = checkDays(args.days);
     if (args.until) e.until = checkUntil(args.until);
-    save(list, args.local);
+    save(list);
     console.log('Edited:  ' + describe(e));
     console.log('  Applies to new logins. Devices already logged in keep their current end date (but never past --until).');
     break;
   }
   case 'remove': {
-    const name = checkName(rawName);
-    if (!list.some(e => e.name === name)) die(`no password called "${name}"`);
-    save(list.filter(e => e.name !== name), args.local);
+    const name = existing(checkName(rawName)).name;
+    save(list.filter(e => e.name !== name));
     console.log(`Removed "${name}". Everyone who entered with it is logged out now.`);
     break;
   }
   case 'push': {
     if (!list.length) die('nothing to push: add a password first');
-    save(list, args.local);
+    save(list);
     break;
   }
   case 'link': {
-    const e = list.find(x => x.name === checkName(rawName)) || die(`no password called "${rawName}"`);
+    const e = existing(checkName(rawName));
     const url = `${SITE}?k=${magicKey(e)}`;
     console.log(url);
     console.log('Anyone with this link gets in without typing the password. It dies when the password changes or is removed.');

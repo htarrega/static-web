@@ -42,10 +42,13 @@ async function safeEqual(a, b) {
   return crypto.subtle.timingSafeEqual(ha, hb);
 }
 
+const nowSec = () => Math.floor(Date.now() / 1000);
+
 /* End of the "until" day, in Europe/Madrid-ish terms: 23:59:59 UTC+1. */
 function untilEpoch(e) {
   return e.until ? Math.floor(Date.parse(e.until + 'T23:59:59+01:00') / 1000) : Infinity;
 }
+const active = (e, now) => untilEpoch(e) > now;
 
 function loadAccess(env) {
   try {
@@ -53,8 +56,6 @@ function loadAccess(env) {
     return Array.isArray(list) ? list.filter(e => e && /^[a-z0-9-]+$/.test(e.name) && e.hash && e.salt) : [];
   } catch { return []; }
 }
-
-const nowSec = () => Math.floor(Date.now() / 1000);
 
 /* Counters live in KV. If KV is missing or over quota, fail open: the gate
    itself still holds, only the throttling is lost. */
@@ -65,9 +66,9 @@ async function failures(env, req) {
 async function recordFailure(env, req, n) {
   try { if (env.RL) await env.RL.put(failKey(req), String(n + 1), { expirationTtl: FAIL_WINDOW }); } catch {}
 }
-const active = (e, now) => untilEpoch(e) > now;
 
-/* Check every active entry (no early exit) so timing doesn't reveal which matched. */
+/* Hash and compare against every entry (no early exit) so timing doesn't
+   reveal which one matched. */
 async function matchPassword(list, pw) {
   const now = nowSec();
   let found = null;
@@ -78,24 +79,28 @@ async function matchPassword(list, pw) {
   return found;
 }
 
+// Signature labels are part of the cookie/magic-link format: changing them
+// logs everyone out and breaks links already handed out (access.mjs signs "magic|" too).
+const sessionSig = (e, exp) => hmacHex(e.hash, `session|${e.name}|${exp}`);
+
 async function issueCookie(e) {
   const now = nowSec();
   const exp = Math.min(now + Math.round((Number(e.sessionDays) || 120) * DAY), untilEpoch(e));
-  const sig = await hmacHex(e.hash, `session|${e.name}|${exp}`);
-  return sessionCookie(`${e.name}.${exp}.${sig}`, exp - now);
+  return sessionCookie(`${e.name}.${exp}.${await sessionSig(e, exp)}`, exp - now);
 }
 
 async function validCookie(list, value) {
   if (!value) return false;
   const [name, expStr, sig] = value.split('.');
   const exp = Number(expStr);
+  const now = nowSec();
   const e = list.find(x => x.name === name);
-  if (!e || !sig || !Number.isFinite(exp) || exp <= nowSec() || !active(e, nowSec())) return false;
-  return safeEqual(sig, await hmacHex(e.hash, `session|${e.name}|${exp}`));
+  if (!e || !sig || !Number.isFinite(exp) || exp <= now || !active(e, now)) return false;
+  return safeEqual(sig, await sessionSig(e, exp));
 }
 
 async function matchMagic(list, k) {
-  const [name, sig] = String(k).split('.');
+  const [name, sig] = k.split('.');
   const e = list.find(x => x.name === name);
   if (!e || !sig || !active(e, nowSec())) return null;
   return (await safeEqual(sig, await hmacHex(e.hash, `magic|${e.name}`))) ? e : null;
@@ -127,73 +132,82 @@ function harden(res) {
 }
 
 function redirect(location, cookie) {
-  const h = { Location: location };
-  if (cookie) h['Set-Cookie'] = cookie;
-  return new Response(null, { status: 303, headers: h });
+  return new Response(null, { status: 303, headers: { Location: location, 'Set-Cookie': cookie } });
 }
 
-/* Only allow redirects back into the workshop, never to another site. */
+/* Only allow redirects back into the workshop, never to another site: a
+   same-origin path under PREFIX (so never "//host" or "https://..."). */
 function safeNext(next) {
-  return typeof next === 'string' && next.startsWith(PREFIX + '/') && !next.startsWith('//') ? next : PREFIX + '/';
+  return next.startsWith(PREFIX + '/') ? next : PREFIX + '/';
+}
+
+/* Password form and magic link alike: refuse while this IP is locked out,
+   otherwise log in on success or count the failure. */
+async function attempt(env, req, next, check) {
+  const fails = await failures(env, req);
+  if (fails >= MAX_FAILS) return loginPage(next, 'locked');
+  const e = await check();
+  if (e) return redirect(next, await issueCookie(e));
+  await recordFailure(env, req, fails);
+  return loginPage(next, 'bad');
 }
 
 export default {
   async fetch(req, env) {
-    const url = new URL(req.url);
-    const path = url.pathname;
-
-    if (path === PREFIX) return harden(Response.redirect(url.origin + PREFIX + '/' + url.search, 301));
-    if (!path.startsWith(PREFIX + '/')) return harden(new Response('Not found', { status: 404 }));
-    const list = loadAccess(env);
-    if (!list.length) return harden(new Response('No passwords configured (ACCESS secret)', { status: 500 }));
-
-    const sub = path.slice(PREFIX.length); // always starts with "/"
-
-    if (sub === '/login' && req.method === 'POST') {
-      const form = await req.formData();
-      const next = safeNext(String(form.get('next') || ''));
-      const fails = await failures(env, req);
-      if (fails >= MAX_FAILS) return harden(loginPage(next, 'locked'));
-      const e = await matchPassword(list, String(form.get('password') || ''));
-      if (e) return harden(redirect(next, await issueCookie(e)));
-      await recordFailure(env, req, fails);
-      return harden(loginPage(next, 'bad'));
-    }
-
-    if (sub === '/logout') return harden(redirect(PREFIX + '/', sessionCookie('', 0)));
-
-    // Magic link (?k=name.sig): set the cookie, then drop the key from the URL.
-    const k = url.searchParams.get('k');
-    if (k !== null) {
-      url.searchParams.delete('k');
-      const clean = url.pathname + (url.search || '');
-      const fails = await failures(env, req);
-      if (fails >= MAX_FAILS) return harden(loginPage(safeNext(clean), 'locked'));
-      const e = await matchMagic(list, k);
-      if (e) return harden(redirect(clean, await issueCookie(e)));
-      await recordFailure(env, req, fails);
-      return harden(loginPage(safeNext(clean), 'bad'));
-    }
-
-    if (!(await validCookie(list, getCookie(req, COOKIE)))) {
-      return harden(loginPage(safeNext(path + url.search), null));
-    }
-
-    // Authorised: map /ai-and-narrative/<x> to site/<x>.
-    const assetUrl = new URL(url);
-    assetUrl.pathname = sub.endsWith('/') ? sub + 'index.html' : sub;
-    assetUrl.search = '';
-    return harden(await env.ASSETS.fetch(new Request(assetUrl, req)));
+    return harden(await handle(req, env));
   },
 };
+
+async function handle(req, env) {
+  const url = new URL(req.url);
+  const path = url.pathname;
+
+  if (path === PREFIX) return Response.redirect(url.origin + PREFIX + '/' + url.search, 301);
+  if (!path.startsWith(PREFIX + '/')) return new Response('Not found', { status: 404 });
+  const list = loadAccess(env);
+  if (!list.length) return new Response('No passwords configured (ACCESS secret)', { status: 500 });
+
+  const sub = path.slice(PREFIX.length); // always starts with "/"
+
+  if (sub === '/login' && req.method === 'POST') {
+    const form = await req.formData();
+    const next = safeNext(String(form.get('next') || ''));
+    return attempt(env, req, next, () => matchPassword(list, String(form.get('password') || '')));
+  }
+
+  if (sub === '/logout') return redirect(PREFIX + '/', sessionCookie('', 0));
+
+  // Magic link (?k=name.sig): set the cookie, then drop the key from the URL.
+  const k = url.searchParams.get('k');
+  if (k !== null) {
+    url.searchParams.delete('k');
+    return attempt(env, req, safeNext(url.pathname + url.search), () => matchMagic(list, k));
+  }
+
+  if (!(await validCookie(list, getCookie(req, COOKIE)))) {
+    return loginPage(safeNext(path + url.search), null);
+  }
+
+  // Authorised: map /ai-and-narrative/<x> to site/<x>.
+  const assetUrl = new URL(url);
+  assetUrl.pathname = sub.endsWith('/') ? sub + 'index.html' : sub;
+  assetUrl.search = '';
+  return env.ASSETS.fetch(new Request(assetUrl, req));
+}
 
 function esc(s) {
   return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
+const LOGIN_STATES = {
+  bad: { status: 401, es: 'Esa contraseña no es correcta. Prueba otra vez.', en: "That password isn't right. Try again." },
+  locked: { status: 429, es: 'Demasiados intentos fallidos. Espera una hora y vuelve a probar.', en: 'Too many failed attempts. Wait an hour and try again.' },
+};
+
 /* Bilingual password screen. Self-contained: shared.css sits behind the gate,
    so the neo-brutalist tokens are repeated here. */
 function loginPage(next, state) { // state: null | 'bad' | 'locked'
+  const s = LOGIN_STATES[state];
   const html = `<!DOCTYPE html>
 <html lang="es">
 <head>
@@ -251,8 +265,7 @@ input[type=password]{width:100%;min-height:56px;font:inherit;font-size:1.1rem;pa
   <h1><span data-l="es">Material del taller</span><span data-l="en">Workshop material</span></h1>
   <p><span data-l="es">Esta página es solo para quienes asisten al taller. Escribe la contraseña que os dimos en clase.</span><span data-l="en">This page is only for workshop attendees. Enter the password we gave you in class.</span></p>
   <form class="card" method="post" action="${PREFIX}/login">
-    ${state === 'bad' ? `<p class="err" role="alert"><span data-l="es">Esa contraseña no es correcta. Prueba otra vez.</span><span data-l="en">That password isn't right. Try again.</span></p>` : ''}
-    ${state === 'locked' ? `<p class="err" role="alert"><span data-l="es">Demasiados intentos fallidos. Espera una hora y vuelve a probar.</span><span data-l="en">Too many failed attempts. Wait an hour and try again.</span></p>` : ''}
+    ${s ? `<p class="err" role="alert"><span data-l="es">${s.es}</span><span data-l="en">${s.en}</span></p>` : ''}
     <label for="pw"><span data-l="es">Contraseña</span><span data-l="en">Password</span></label>
     <input id="pw" name="password" type="password" autocomplete="current-password" required autofocus>
     <input type="hidden" name="next" value="${esc(next)}">
@@ -268,6 +281,5 @@ document.querySelectorAll('[data-set]').forEach(function(b){b.onclick=function()
 </script>
 </body>
 </html>`;
-  const status = state === 'locked' ? 429 : state === 'bad' ? 401 : 200;
-  return new Response(html, { status, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+  return new Response(html, { status: s ? s.status : 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
 }
