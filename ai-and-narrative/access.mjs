@@ -6,7 +6,8 @@
      ./access.mjs add <name> [--days N] [--until YYYY-MM-DD]   create, or change its password
      ./access.mjs edit <name> [--days N] [--until YYYY-MM-DD|none]   change durations only
      ./access.mjs remove <name>
-     ./access.mjs link <name>                                  magic link for the QR code
+     ./access.mjs link <name> [--qr]                           magic link; --qr also saves qr-<name>.png
+                                                               and prints the QR in the terminal (needs qrencode)
      ./access.mjs push                                         re-upload the list as is (e.g. after a failed upload)
      ./access.mjs help
 
@@ -39,6 +40,7 @@ function parseArgs(argv) {
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--local') out.local = true;
+    else if (a === '--qr') out.qr = true;
     else if (a === '--help' || a === '-h') out._.unshift('help');
     else if (a === '--days' || a === '--until') out[a.slice(2)] = argv[++i];
     else if (a.startsWith('--')) die(`unknown flag ${a}`);
@@ -160,8 +162,16 @@ switch (cmd) {
   }
   case 'link': {
     const e = list.find(x => x.name === checkName(rawName)) || die(`no password called "${rawName}"`);
-    console.log(`${SITE}?k=${magicKey(e)}`);
+    const url = `${SITE}?k=${magicKey(e)}`;
+    console.log(url);
     console.log('Anyone with this link gets in without typing the password. It dies when the password changes or is removed.');
+    if (args.qr) {
+      const png = join(DIR, `qr-${e.name}.png`);
+      const a = spawnSync('qrencode', ['-o', png, '-s', '16', '-m', '2', '-l', 'M', url], { stdio: 'inherit' });
+      if (a.error || a.status !== 0) die('qrencode not found: install it with `sudo apt install qrencode`');
+      spawnSync('qrencode', ['-t', 'ANSIUTF8', '-m', '2', url], { stdio: 'inherit' });
+      console.log(`QR saved to ${png} (gitignored). Treat it like the password: anyone who scans it gets in.`);
+    }
     break;
   }
   default:

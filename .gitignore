@@ -2,3 +2,4 @@ node_modules/
 .wrangler/
 .claude/settings.local.json
 ai-and-narrative/.dev.vars
+ai-and-narrative/qr-*.png
