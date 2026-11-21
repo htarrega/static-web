@@ -1,0 +1,23 @@
+// Worker that gates htarrega.me/ai-and-narrative/* behind a password.
+// The rest of htarrega.me keeps being served by GitHub Pages.
+// See DESIGN.md for the reasoning.
+{
+  "name": "ai-and-narrative",
+  "main": "worker.js",
+  "compatibility_date": "2025-11-01",
+  "workers_dev": false,
+  "routes": [
+    { "pattern": "htarrega.me/ai-and-narrative*", "zone_name": "htarrega.me" }
+  ],
+  "assets": {
+    "directory": "./site",
+    "binding": "ASSETS",
+    // The Worker checks the cookie before any asset is served.
+    "run_worker_first": true,
+    // Serve files exactly as named; the Worker maps "/" to index.html.
+    "html_handling": "none",
+    "not_found_handling": "none"
+  }
+  // Secret (not in this file): ACCESS — the list of valid passwords (hashed).
+  // Manage it ONLY with ./access.mjs, which also writes .dev.vars for local dev.
+}

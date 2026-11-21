@@ -1,0 +1,161 @@
+#!/usr/bin/env node
+/* Manage the workshop passwords. Run from this folder, in your own terminal
+   (it asks for passwords without echoing them).
+
+     ./access.mjs list
+     ./access.mjs add <name> [--days N] [--until YYYY-MM-DD]   create, or change its password
+     ./access.mjs edit <name> [--days N] [--until YYYY-MM-DD|none]   change durations only
+     ./access.mjs remove <name>
+     ./access.mjs link <name>                                  magic link for the QR code
+
+   Flags for any command that changes something:
+     --local   only update .dev.vars (for `wrangler dev`), don't touch Cloudflare
+
+   --days   how long a device stays logged in after typing the password (default 120)
+   --until  last day the password works; sessions never outlive it (default: no end)
+
+   State lives in access.json (hashes only, never plaintext; encrypted in git by
+   git-crypt). Every change rewrites .dev.vars and, unless --local, uploads the
+   whole list to Cloudflare as the ACCESS secret with `wrangler secret put`,
+   which takes effect immediately. See DESIGN.md. */
+
+import { createHash, createHmac, randomBytes } from 'node:crypto';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const DIR = dirname(fileURLToPath(import.meta.url));
+const FILE = join(DIR, 'access.json');
+const DEV_VARS = join(DIR, '.dev.vars');
+const SITE = 'https://htarrega.me/ai-and-narrative/';
+
+const die = msg => { console.error('✘ ' + msg); process.exit(1); };
+
+function parseArgs(argv) {
+  const out = { _: [] };
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === '--local') out.local = true;
+    else if (a === '--days' || a === '--until') out[a.slice(2)] = argv[++i];
+    else if (a.startsWith('--')) die(`unknown flag ${a}`);
+    else out._.push(a);
+  }
+  return out;
+}
+
+const load = () => (existsSync(FILE) ? JSON.parse(readFileSync(FILE, 'utf8')) : []);
+
+function checkName(n) {
+  if (!n || !/^[a-z0-9-]+$/.test(n)) die('name: lowercase letters, digits and hyphens only (e.g. bibliocafe)');
+  return n;
+}
+function checkDays(d) {
+  const n = Number(d);
+  if (!Number.isFinite(n) || n <= 0 || n > 3650) die('--days must be a number of days between 1 and 3650');
+  return n;
+}
+function checkUntil(u) {
+  if (u === 'none') return null;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(u) || isNaN(Date.parse(u))) die('--until must be YYYY-MM-DD (or "none")');
+  return u;
+}
+
+/* Read a line from the terminal without echoing it. */
+function askHidden(prompt) {
+  if (process.env.AIN_PASSWORD) return Promise.resolve(process.env.AIN_PASSWORD); // tests only
+  if (!process.stdin.isTTY) die('run this in a real terminal (it needs to ask for the password)');
+  return new Promise(resolve => {
+    process.stdout.write(prompt);
+    const stdin = process.stdin;
+    stdin.setRawMode(true); stdin.resume(); stdin.setEncoding('utf8');
+    let buf = '';
+    const onData = ch => {
+      for (const c of ch) {
+        if (c === '\r' || c === '\n') {
+          stdin.setRawMode(false); stdin.pause(); stdin.off('data', onData);
+          process.stdout.write('\n'); return resolve(buf);
+        }
+        if (c === '\u0003') { process.stdout.write('\n'); process.exit(130); }
+        if (c === '\u007f' || c === '\b') buf = buf.slice(0, -1); else buf += c;
+      }
+    };
+    stdin.on('data', onData);
+  });
+}
+
+const magicKey = e => `${e.name}.${createHmac('sha256', e.hash).update(`magic|${e.name}`).digest('hex')}`;
+
+function describe(e) {
+  return `${e.name.padEnd(16)} session ${String(e.sessionDays).padStart(4)} days   ` +
+    `valid until ${e.until || '(no end)'}   created ${e.created}`;
+}
+
+function save(list, local) {
+  writeFileSync(FILE, JSON.stringify(list, null, 2) + '\n');
+  const json = JSON.stringify(list.map(({ name, salt, hash, sessionDays, until }) => ({ name, salt, hash, sessionDays, until })));
+  writeFileSync(DEV_VARS, `ACCESS='${json}'\n`, { mode: 0o600 });
+  if (local) { console.log('✔ saved locally (access.json, .dev.vars). Restart `wrangler dev` to pick it up.'); return; }
+  const r = spawnSync('wrangler', ['secret', 'put', 'ACCESS'], { cwd: DIR, input: json, stdio: ['pipe', 'inherit', 'inherit'] });
+  if (r.status !== 0) die('wrangler secret put failed; access.json is saved, re-run the command once wrangler works (`wrangler login`).');
+  console.log('✔ uploaded to Cloudflare. Active now.');
+}
+
+const args = parseArgs(process.argv.slice(2));
+const [cmd, rawName] = args._;
+const list = load();
+
+switch (cmd) {
+  case 'list': {
+    if (!list.length) console.log('(no passwords yet; add one with ./access.mjs add <name>)');
+    const today = new Date().toISOString().slice(0, 10);
+    for (const e of list) console.log((e.until && e.until < today ? 'EXPIRED  ' : 'active   ') + describe(e));
+    break;
+  }
+  case 'add': {
+    const name = checkName(rawName);
+    const old = list.find(e => e.name === name);
+    const pw = await askHidden(`New password for "${name}": `);
+    if (pw.length < 12) die('use at least 12 characters (4 random words is ideal)');
+    if (!process.env.AIN_PASSWORD && pw !== await askHidden('Repeat it: ')) die("they don't match");
+    const salt = randomBytes(16).toString('hex');
+    const entry = {
+      name, salt,
+      hash: createHash('sha256').update(salt + pw).digest('hex'),
+      sessionDays: args.days ? checkDays(args.days) : old?.sessionDays ?? 120,
+      until: args.until ? checkUntil(args.until) : old?.until ?? null,
+      created: new Date().toISOString().slice(0, 10),
+    };
+    const next = list.filter(e => e.name !== name).concat(entry);
+    save(next, args.local);
+    console.log((old ? 'Changed: ' : 'Added:   ') + describe(entry));
+    if (old) console.log('  Everyone logged in with the old one is logged out; its old magic link stops working.');
+    break;
+  }
+  case 'edit': {
+    const name = checkName(rawName);
+    const e = list.find(x => x.name === name) || die(`no password called "${name}"`);
+    if (!args.days && !args.until) die('nothing to change: pass --days and/or --until');
+    if (args.days) e.sessionDays = checkDays(args.days);
+    if (args.until) e.until = checkUntil(args.until);
+    save(list, args.local);
+    console.log('Edited:  ' + describe(e));
+    console.log('  Applies to new logins. Devices already logged in keep their current end date (but never past --until).');
+    break;
+  }
+  case 'remove': {
+    const name = checkName(rawName);
+    if (!list.some(e => e.name === name)) die(`no password called "${name}"`);
+    save(list.filter(e => e.name !== name), args.local);
+    console.log(`Removed "${name}". Everyone who entered with it is logged out now.`);
+    break;
+  }
+  case 'link': {
+    const e = list.find(x => x.name === checkName(rawName)) || die(`no password called "${rawName}"`);
+    console.log(`${SITE}?k=${magicKey(e)}`);
+    console.log('Anyone with this link gets in without typing the password. It dies when the password changes or is removed.');
+    break;
+  }
+  default:
+    console.log(readFileSync(fileURLToPath(import.meta.url), 'utf8').split('*/')[0].replace(/^#!.*\n\/\* ?/, '').replace(/^ {3}/gm, ''));
+}

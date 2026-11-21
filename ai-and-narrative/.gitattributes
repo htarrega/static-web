@@ -1,0 +1,4 @@
+# Workshop pages are encrypted in the public repo (see DESIGN.md).
+site/** filter=git-crypt diff=git-crypt
+.gitattributes !filter !diff
+access.json filter=git-crypt diff=git-crypt

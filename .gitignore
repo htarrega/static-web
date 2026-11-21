@@ -1,4 +1,4 @@
 node_modules/
 .wrangler/
 .claude/settings.local.json
-ai-and-narrative/
+ai-and-narrative/.dev.vars
