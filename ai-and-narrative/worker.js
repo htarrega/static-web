@@ -70,11 +70,17 @@ async function recordFailure(env, req, n) {
 /* Hash and compare against every entry (no early exit) so timing doesn't
    reveal which one matched. */
 async function matchPassword(list, pw) {
+  // Mobile keyboards and copy-paste from an email often add a space at the
+  // ends; passwords never have one (access.mjs refuses spaces), so also try
+  // the trimmed input. Trying the raw input too keeps any older entry working.
+  const tries = pw.trim() === pw ? [pw] : [pw, pw.trim()];
   const now = nowSec();
   let found = null;
   for (const e of list) {
-    const ok = await safeEqual(await sha256Hex(e.salt + pw), e.hash);
-    if (ok && active(e, now) && !found) found = e;
+    for (const t of tries) {
+      const ok = await safeEqual(await sha256Hex(e.salt + t), e.hash);
+      if (ok && active(e, now) && !found) found = e;
+    }
   }
   return found;
 }

@@ -156,6 +156,11 @@ Counting only failures keeps KV writes well under the free daily limit.
   rewrites `.html` URLs with redirects that drop the `/ai-and-narrative`
   prefix.
 
+- **No spaces in passwords.** `access.mjs` trims the ends and refuses inner
+  whitespace; on login the Worker tries the input as typed and trimmed,
+  because mobile keyboards and copy-paste from an email often add a space.
+  Trying the raw input too keeps any entry created before this rule working.
+
 ## 5. Content and structure
 
 ```

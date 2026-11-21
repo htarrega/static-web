@@ -124,9 +124,12 @@ switch (cmd) {
   case 'add': {
     const name = checkName(rawName);
     const old = find(name);
-    const pw = await askHidden(`New password for "${name}": `);
-    if (pw.length < 12 && !args.allowShort) die('use at least 12 characters (4 random words is ideal), or pass --allow-short for a throwaway test password');
-    if (!process.env.AIN_PASSWORD && pw !== await askHidden('Repeat it: ')) die("they don't match");
+    const raw = await askHidden(`New password for "${name}": `);
+    const pw = raw.trim(); // never store spaces at the ends (the Worker also trims on login)
+    if (pw !== raw) console.log('Note: removed spaces at the start/end of the password.');
+    if (/\s/.test(pw)) die('no spaces inside the password (join words with hyphens, e.g. farola-ciruela-mapa-trueno)');
+    if (pw.length < 12 && !args.allowShort) die('use at least 12 characters (4 random words joined with hyphens is ideal), or pass --allow-short for a throwaway test password');
+    if (!process.env.AIN_PASSWORD && pw !== (await askHidden('Repeat it: ')).trim()) die("they don't match");
     const salt = randomBytes(16).toString('hex');
     const entry = {
       name, salt,
