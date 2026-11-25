@@ -296,6 +296,45 @@ Warnings:
   Cloudflare dashboard**: the next CLI change overwrites it.
 - A QR code or magic link is equivalent to the password.
 
+## 7b. Stats panel
+
+An owner-only panel at `/ai-and-narrative/admin/` (data: `/admin/data?range=7|30|all`),
+backed by a D1 database (`DB` binding, schema in `schema.sql`). All writes
+happen in `ctx.waitUntil` and fail open: if D1 is missing or erroring, the gate
+works exactly as before (and `/admin/data` answers zeros with `"dbMissing": true`).
+
+**Recorded** (table `events`): `view` (authorised HTML page: index or session N,
+language, device type, country), `login` (password name, typed or magic link),
+`fail` (wrong password or link), `lock` (an IP reached MAX_FAILS; one row per
+lockout), `read` (section opened, `{page, view, idx}`, sent by the page to `POST /_r`).
+Table `daily_requests` counts every request per day, to compare against the
+100,000/day free-plan quota.
+
+**Privacy**: no IPs and no User-Agent are stored; device type is derived and
+only the class kept. A "device" is the first 16 hex chars of sha256 of the session
+cookie (no extra cookie; a new login on the same browser counts as a new
+device). Failures carry only `anon` = first 3 hex of sha256(ip + day), which
+rotates daily, plus the country. Typed passwords are never stored. Visits
+by names in `OWNER_NAMES` (default `hugo`) are not recorded, and only they can
+open the panel; anyone else gets the same 404 as a missing file. The login page
+tells visitors visits are counted anonymously.
+
+**Setup (Hugo, once)**:
+
+1. `wrangler d1 create ai-and-narrative-stats`; paste the printed `database_id`
+   into `wrangler.jsonc` (replacing `PENDING-wrangler-d1-create`).
+2. `wrangler d1 execute ai-and-narrative-stats --remote --file schema.sql`
+   (idempotent; safe to re-run).
+3. Deploy the Worker.
+
+**Maintenance**: when publishing a session, add it to the `SESSIONS` var in
+`wrangler.jsonc` (`{"id":N,"published":"YYYY-MM-DD"}`) and redeploy; "last
+session" and per-session figures depend on it. Locally, apply the schema with
+`--local` instead of `--remote`.
+
+**Limits**: the number of students is unknown, so the panel shows absolute
+counts (devices), never percentages of attendance.
+
 ## 8. Open items
 
 - Confirm the privacy-setting labels quoted in session 1 against the live
