@@ -319,13 +319,32 @@ by names in `OWNER_NAMES` (default `hugo`) are not recorded, and only they can
 open the panel; anyone else gets the same 404 as a missing file. The login page
 tells visitors visits are counted anonymously.
 
-**Setup (Hugo, once)**:
+**Why D1** (decided 2026-11-25): the Worker keeps nothing between requests, so
+events must be stored somewhere the panel can query. The Cloudflare dashboard
+only knows total requests (no sessions, devices or passwords). The existing KV
+allows ~1,000 writes/day on the free plan and can't answer "distinct devices
+that opened session 2". Analytics Engine needs an API token to read and keeps
+data only 3 months (the workshop runs to May 2027). D1 is free at this volume
+(100,000 writes/day), queried directly from the Worker, and keeps data until
+deleted.
 
-1. `wrangler d1 create ai-and-narrative-stats`; paste the printed `database_id`
-   into `wrangler.jsonc` (replacing `PENDING-wrangler-d1-create`).
-2. `wrangler d1 execute ai-and-narrative-stats --remote --file schema.sql`
-   (idempotent; safe to re-run).
-3. Deploy the Worker.
+**Setup (done 2026-11-25)**: database `ai-and-narrative-stats`, region WEUR,
+id `cf54a771-23a5-4ea9-b5fb-ed3c848116bf` (in `wrangler.jsonc`). Created with
+`wrangler d1 create ai-and-narrative-stats`, schema applied with
+`wrangler d1 execute ai-and-narrative-stats --remote --file schema.sql`
+(idempotent; re-run it after changing `schema.sql`), then `wrangler deploy`.
+Data starts on that date; nothing earlier was recorded. To rebuild from
+scratch: create a new database, paste its id, apply the schema, deploy.
+
+**Querying by hand** (besides the panel):
+
+    wrangler d1 execute ai-and-narrative-stats --remote --command "select kind, count(*) from events group by kind"
+    wrangler d1 export ai-and-narrative-stats --remote --output stats.sql   # backup (gitignored)
+
+**Deleting data**: `delete from events where day < 'YYYY-MM-DD'` with the
+command above, or `wrangler d1 delete ai-and-narrative-stats` to drop the whole
+database when the workshop ends (then remove the binding and redeploy; the
+gate keeps working without it).
 
 **Maintenance**: when publishing a session, add it to the `SESSIONS` var in
 `wrangler.jsonc` (`{"id":N,"published":"YYYY-MM-DD"}`) and redeploy; "last

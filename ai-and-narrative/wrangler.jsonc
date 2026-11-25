@@ -16,7 +16,7 @@
   // Stats storage. Hugo creates it once with `wrangler d1 create ai-and-narrative-stats`
   // and pastes the printed database_id here (see DESIGN.md, "Stats panel").
   "d1_databases": [
-    { "binding": "DB", "database_name": "ai-and-narrative-stats", "database_id": "PENDING-wrangler-d1-create" }
+    { "binding": "DB", "database_name": "ai-and-narrative-stats", "database_id": "cf54a771-23a5-4ea9-b5fb-ed3c848116bf" }
   ],
   "vars": {
     // Comma-separated password names: their visits are not recorded and they may open the stats panel.

@@ -4,3 +4,4 @@ node_modules/
 ai-and-narrative/.dev.vars
 ai-and-narrative/qr-*.png
 ai-and-narrative/access.local.json
+ai-and-narrative/stats*.sql
